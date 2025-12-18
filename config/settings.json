@@ -3,7 +3,15 @@
         "DPIR1": {
             "name": "Door motion sensor",
             "simulated": true,
-            "pin": 17
+            "pin": 17,
+            "verbose": true
+        },
+        "DS1": {
+            "name": "Door sensor",
+            "simulated": true,
+            "pin": 4,
+            "verbose": true,
+            "poll_interval": 0.5
         }
     }
 }

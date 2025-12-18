@@ -1,13 +1,18 @@
-import json
+import sys
+from controllers import pi1 
 
-def load_settings(filePath='settings.json'):
-    with open(filePath, 'r') as f:
-        return json.load(f)
+def main():
+    if len(sys.argv) > 1:
+        pi = sys.argv[1].upper()
+    else:
+        pi = "PI1"
 
-def start_pi1():
-    pass
+    if pi == "PI1":
+        pi1.run()
+    else:
+        print(f"ERROR: Unknown PI: {pi}")
+        print("Usage: python main.py [PI1]")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    print('Starting app..')
-    settings = load_settings()
-    threads = []
+    main()
