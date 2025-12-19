@@ -36,7 +36,7 @@ class Button(ButtonInterface):
     return None
   
   def start(self):
-    """Pokreće simulaciju u zasebnoj niti"""
+    """Starts the simulation in a separate thread"""
     thread = threading.Thread(
         target=loop, 
         args=(self,),

@@ -3,6 +3,7 @@ import threading
 import sys
 import signal
 from components.button_manager import ButtonManager
+from components.dpir_manager import DPIRManager
 
 # NOTE: this function should be moved to a common utility module
 def load_config(config_path: str = "settings.json") -> dict:
@@ -21,6 +22,12 @@ def start_sensors(config, stop_event, publisher=None):
         ds1_config = config["DS1"]
         ds1_config['code'] = 'DS1'
         thread = ButtonManager.start_button(ds1_config, stop_event, publisher)
+        threads.append(thread)
+
+    if "DPIR" in config:
+        dpir1_config = config["DPIR1"]
+        dpir1_config['code'] = 'DPIR1'
+        thread = DPIRManager.start(dpir1_config, stop_event, publisher)
         threads.append(thread)
 
     # TODO: add other sensors when implemented
