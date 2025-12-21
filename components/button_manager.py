@@ -31,7 +31,7 @@ class ButtonManager:
       button = ButtonManager.create_button(config, stop_event, button_callback)
       thread = button.start()
 
-      print(f"[BUTTON_MANAGERA] Button '{config.get('name', 'unknown')}' started successfully")
+      print(f"[BUTTON_MANAGER] Button '{config.get('name', 'unknown')}' started successfully")
       return thread
 
   

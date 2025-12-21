@@ -36,7 +36,7 @@ class Button(ButtonInterface):
     return None
   
   def start(self):
-    """Pokreće simulaciju u zasebnoj niti"""
+    """Starts the simulation in a separate thread"""
     thread = threading.Thread(
         target=loop, 
         args=(self,),
@@ -46,9 +46,6 @@ class Button(ButtonInterface):
     thread.start()
     self.log("Thread started")
     return thread
-  
-  def read(self):
-    return self.pressed
   
   def log(self, message: str) -> None:
     super().log(message)
