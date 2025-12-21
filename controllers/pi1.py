@@ -24,10 +24,10 @@ def start_sensors(config, stop_event, publisher=None):
         thread = ButtonManager.start_button(ds1_config, stop_event, publisher)
         threads.append(thread)
 
-    if "DPIR" in config:
+    if "DPIR1" in config:
         dpir1_config = config["DPIR1"]
         dpir1_config['code'] = 'DPIR1'
-        thread = DPIRManager.start(dpir1_config, stop_event, publisher)
+        thread = DPIRManager.start_dpir(dpir1_config, stop_event, publisher)
         threads.append(thread)
 
     # TODO: add other sensors when implemented

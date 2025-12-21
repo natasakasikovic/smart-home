@@ -8,10 +8,6 @@ class SensorInterface(ABC):
         self.config = config
         self.stop_event = stop_event
         self.callback = callback
-    
-  @abstractmethod
-  def read(self) -> Any:
-        pass
   
   @abstractmethod
   def start(self) -> None:

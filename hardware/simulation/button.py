@@ -47,9 +47,6 @@ class Button(ButtonInterface):
     self.log("Thread started")
     return thread
   
-  def read(self):
-    return self.pressed
-  
   def log(self, message: str) -> None:
     super().log(message)
 

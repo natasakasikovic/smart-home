@@ -1,9 +1,17 @@
 from ..base.dpir_interface import DPIRInterface
+import time
 
 def loop(dpir):
     dpir.log("Simulation DPIR started")
     while not dpir.should_stop():
-        pass
+        state_change = dpir.detect_motion()
+    
+        if state_change is not None:
+            dpir.callback(state_change, dpir.config)
+        
+        time.sleep(dpir.config.get('poll_interval', 0.5))
+
+    dpir.log("Simulation loop stopped")
 
 class DPIR(DPIRInterface):
     def __init__(self, config, stop_event, callback):
@@ -15,7 +23,7 @@ class DPIR(DPIRInterface):
         import random
         value = random.randint(0,1) == 1
         if value:
-            self.log('Motion DETECTED')
+            self.log('Motion DETECTED (simulated)')
         return value
     
     def start(self):
@@ -33,3 +41,6 @@ class DPIR(DPIRInterface):
 
     def should_stop(self):
         return super().should_stop()
+    
+    def log(self, message: str) -> None:
+        super().log(message)
