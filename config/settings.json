@@ -12,6 +12,12 @@
             "pin": 4,
             "verbose": true,
             "poll_interval": 0.5
+        },
+        "DB": {
+            "name": "Door Buzzer",
+            "simulated": true,
+            "pin": 18,
+            "verbose": true
         }
     }
 }

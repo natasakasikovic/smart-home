@@ -2,10 +2,8 @@ import time
 import threading
 from ..base.ds_interface import DSInterface
 
-
 def loop(ds):
     pass
-
 
 class DS(DSInterface):
     def __init__(self, config, stop_event, callback):
