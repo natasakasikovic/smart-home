@@ -13,6 +13,13 @@
             "verbose": true,
             "poll_interval": 0.5
         },
+        "DMS": {
+            "name": "Door Membrane Switch",
+            "simulated": true,
+            "pin": 27,
+            "verbose": true,
+            "poll_interval": 0.5
+        },
         "DB": {
             "name": "Door Buzzer",
             "simulated": true,
