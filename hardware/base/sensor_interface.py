@@ -13,11 +13,9 @@ class SensorInterface(ABC):
   def start(self) -> None:
         pass
   
-  @abstractmethod
   def should_stop(self) -> bool:
         return self.stop_event.is_set()
   
-  @abstractmethod 
   def log(self, message: str) -> None:
         if self.config.get("verbose", False):
             print(message)
