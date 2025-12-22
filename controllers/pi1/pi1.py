@@ -2,8 +2,10 @@ import json
 import threading
 import sys
 import signal
-from components.button_manager import ButtonManager
+from components.ds_manager import DSManager
 from components.dpir_manager import DPIRManager
+from components.db_manager import DBManager
+from controllers.pi1.command_handler import CommandHandler
 
 # NOTE: this function should be moved to a common utility module
 def load_config(config_path: str = "settings.json") -> dict:
@@ -21,7 +23,7 @@ def start_sensors(config, stop_event, publisher=None):
     if "DS1" in config:
         ds1_config = config["DS1"]
         ds1_config['code'] = 'DS1'
-        thread = ButtonManager.start_button(ds1_config, stop_event, publisher)
+        thread = DSManager.start_ds(ds1_config, stop_event, publisher)
         threads.append(thread)
 
     if "DPIR1" in config:
@@ -33,6 +35,19 @@ def start_sensors(config, stop_event, publisher=None):
     # TODO: add other sensors when implemented
     return threads
 
+
+def start_actuators(config, stop_event):
+    actuators = {}
+
+    if "DB" in config:
+        db_config = config["DB"]
+        db_config["code"] = "DB"
+        db = DBManager.start_db(db_config, stop_event)
+        actuators["DB"] = db
+
+    # TODO: add other actuators
+    return actuators
+
 def run():
     print("[PI1] Starting...")
     config = load_config("config/settings.json")
@@ -42,21 +57,26 @@ def run():
     signal.signal(signal.SIGTERM, lambda s, f: stop_event.set())
 
     threads = start_sensors(config, stop_event)
+    actuators = start_actuators(config, stop_event)
+    
+    cmd_handler = CommandHandler(actuators, threads, stop_event)
+    
+    print("[PI1] System ready. Type 'help' for commands.")
 
     try:
         while not stop_event.is_set():
-            command = input(">>> ").strip().lower()
-            if command in ("e", "exit", "quit"):
-                print("[PI1] Shutting down...")
+            try:
+                command = input(">>> ")
+                cmd_handler.handle(command)
+            except EOFError:
                 stop_event.set()
-            elif command == "status":
-                print(f"[PI1] Active threads: {len([t for t in threads if t.is_alive()])}")
-            else:
-                print("[PI1] Unknown command")
+                break
     except KeyboardInterrupt:
         stop_event.set()
 
+    print("[PI1] Waiting for threads to finish...")
     for t in threads:
         if t.is_alive():
             t.join()
+    
     print("[PI1] Shutdown complete")

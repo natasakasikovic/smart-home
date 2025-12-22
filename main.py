@@ -1,5 +1,5 @@
 import sys
-from controllers import pi1 
+from controllers.pi1 import pi1 
 
 def main():
     if len(sys.argv) > 1:
