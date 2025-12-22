@@ -5,6 +5,7 @@ import signal
 from components.ds_manager import DSManager
 from components.dpir_manager import DPIRManager
 from components.db_manager import DBManager
+from controllers.pi1.command_handler import CommandHandler
 
 # NOTE: this function should be moved to a common utility module
 def load_config(config_path: str = "settings.json") -> dict:
@@ -47,7 +48,6 @@ def start_actuators(config, stop_event):
     # TODO: add other actuators
     return actuators
 
-
 def run():
     print("[PI1] Starting...")
     config = load_config("config/settings.json")
@@ -58,37 +58,25 @@ def run():
 
     threads = start_sensors(config, stop_event)
     actuators = start_actuators(config, stop_event)
+    
+    cmd_handler = CommandHandler(actuators, threads, stop_event)
+    
+    print("[PI1] System ready. Type 'help' for commands.")
 
     try:
         while not stop_event.is_set():
-            command = input(">>> ").strip().lower()
-            if command in ("e", "exit", "quit"):
-                print("[PI1] Shutting down...")
+            try:
+                command = input(">>> ")
+                cmd_handler.handle(command)
+            except EOFError:
                 stop_event.set()
-            elif command == "status":
-                print(f"[PI1] Active threads: {len([t for t in threads if t.is_alive()])}")
-            
-            # TODO: EXTRACT
-            elif command == "db on":
-                actuators["DB"].on()
-
-            elif command == "db off":
-                actuators["DB"].off()
-
-            elif command.startswith("db beep"):
-                try:
-                    _, _, duration = command.split()
-                    actuators["DB"].beep(float(duration))
-                except Exception:
-                    print("Usage: db beep <seconds>")
-
-
-            else:
-                print("[PI1] Unknown command")
+                break
     except KeyboardInterrupt:
         stop_event.set()
 
+    print("[PI1] Waiting for threads to finish...")
     for t in threads:
         if t.is_alive():
             t.join()
+    
     print("[PI1] Shutdown complete")
