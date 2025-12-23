@@ -10,6 +10,7 @@
             "name": "Door sensor",
             "simulated": true,
             "pin": 4,
+            "debounce_ms": 50,
             "verbose": true,
             "poll_interval": 0.5
         },
