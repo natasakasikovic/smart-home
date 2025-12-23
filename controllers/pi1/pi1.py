@@ -6,6 +6,7 @@ from components.ds_manager import DSManager
 from components.dms_manager import DMSManager
 from components.dpir_manager import DPIRManager
 from components.db_manager import DBManager
+from components.dl_manager import DLManager
 from components.dus_manager import DUSManager
 from controllers.pi1.command_handler import CommandHandler
 
@@ -58,6 +59,12 @@ def start_actuators(config, stop_event):
         db_config["code"] = "DB"
         db = DBManager.start_db(db_config, stop_event)
         actuators["DB"] = db
+
+    if "DL" in config:
+        dl_config = config["DL"]
+        dl_config["code"] = "DL"
+        dl = DLManager.start_dl(dl_config, stop_event)
+        actuators["DL"] = dl
 
     # TODO: add other actuators
     return actuators

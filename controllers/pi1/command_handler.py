@@ -11,6 +11,7 @@ class CommandHandler:
             'quit': self.cmd_exit,
             'status': self.cmd_status,
             'db': self.cmd_db,
+            'dl': self.cmd_dl,
             'help': self.cmd_help,
         }
     
@@ -52,6 +53,27 @@ class CommandHandler:
                 print("[ERROR] Duration must be a number")
         else:
             print(f"[ERROR] Unknown DB action: {action}")
+
+    def cmd_dl(self, args):
+        """Control DL actuator: dl [on|off]"""
+        
+        if "DL" not in self.actuators:
+            print("[ERROR] DL actuator not available")
+            return
+        
+        if not args:
+            print("Usage: dl [on|off]")
+            return
+        
+        action = args[0]
+
+        if action == "on":
+            self.actuators["DL"].on()
+        elif action == "off":
+            self.actuators["DL"].off()
+        else:
+            print(f"[ERROR] Unknown DL action: {action}")
+
     
     def cmd_help(self, args):
         """Show available commands."""
@@ -61,6 +83,8 @@ class CommandHandler:
         print("  db on             - Turn on DB actuator")
         print("  db off            - Turn off DB actuator")
         print("  db beep <seconds> - Beep for specified duration")
+        print("  dl on             - Turn on DL actuator")
+        print("  dl off            - Turn off DL actuator")
         print("  help              - Show this help message")
         print()
     
