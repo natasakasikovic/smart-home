@@ -25,6 +25,12 @@
             "simulated": true,
             "pin": 18,
             "verbose": true
+        },
+        "DL": {
+            "name": "Door Light",
+            "simulated": true,
+            "pin": 16,
+            "verbose": true
         }
     }
 }
