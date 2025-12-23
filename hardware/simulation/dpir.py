@@ -21,7 +21,7 @@ class DPIR(DPIRInterface):
     def detect_motion(self) -> bool:
         """Motion detection is simulated using random values to emulate real sensor behavior."""
         import random
-        value = random.randint(0,1) == 1
+        value = random.random() < 0.2
         if value:
             self.log('Motion DETECTED (simulated)')
         return value
