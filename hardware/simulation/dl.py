@@ -10,8 +10,12 @@ class DL(DLInterface):
         if not self.is_on:
             self.is_on = True
             self.log("Light TURNED ON (simulated)")
+        else:
+            self.log("Light is already TURNED ON")
 
     def off(self):
         if self.is_on:
             self.is_on = False
             self.log("Light TURNED OFF (simulated)")
+        else:
+            self.log("Light is already TURNED OFF")
