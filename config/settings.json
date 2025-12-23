@@ -18,6 +18,12 @@
             "simulated": true,
             "pin": 18,
             "verbose": true
+        },
+        "DUS1": {
+            "name": "Door ultrasonic sensor",
+            "simulated": true,
+            "pin": 17,
+            "verbose": true
         }
     }
 }
