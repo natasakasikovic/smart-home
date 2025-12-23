@@ -9,5 +9,5 @@ class DUS(DUSInterface):
         self.log("Initializing REAL DUS (Door Ultrasonic Sensor) on pin {}".format(self.config.get('pin', 'N/A')))
 
     def detect(self):
-        print("Read DUS not implemented yet")
+        print("Real DUS not implemented yet")
         pass
