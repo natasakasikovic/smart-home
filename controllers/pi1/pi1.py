@@ -3,6 +3,7 @@ import threading
 import sys
 import signal
 from components.ds_manager import DSManager
+from components.dms_manager import DMSManager
 from components.dpir_manager import DPIRManager
 from components.db_manager import DBManager
 from controllers.pi1.command_handler import CommandHandler
@@ -24,6 +25,12 @@ def start_sensors(config, stop_event, publisher=None):
         ds1_config = config["DS1"]
         ds1_config['code'] = 'DS1'
         thread = DSManager.start_ds(ds1_config, stop_event, publisher)
+        threads.append(thread)
+
+    if "DMS" in config:
+        dms_config = config["DMS"]
+        dms_config['code'] = 'DMS'
+        thread = DMSManager.start_dms(dms_config, stop_event, publisher)
         threads.append(thread)
 
     if "DPIR1" in config:
