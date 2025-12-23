@@ -1,0 +1,42 @@
+{
+    "PI1":{
+        "DPIR1": {
+            "name": "Door PIR motion sensor",
+            "simulated": true,
+            "pin": 17,
+            "verbose": true
+        },
+        "DS1": {
+            "name": "Door sensor",
+            "simulated": true,
+            "pin": 4,
+            "verbose": true,
+            "poll_interval": 0.5
+        },
+        "DMS": {
+            "name": "Door Membrane Switch",
+            "simulated": true,
+            "pin": 27,
+            "verbose": true,
+            "poll_interval": 0.5
+        },
+        "DB": {
+            "name": "Door Buzzer",
+            "simulated": true,
+            "pin": 18,
+            "verbose": true
+        },
+        "DL": {
+            "name": "Door Light",
+            "simulated": true,
+            "pin": 16,
+            "verbose": true
+        },
+        "DUS1": {
+            "name": "Door ultrasonic sensor",
+            "simulated": true,
+            "pin": 17,
+            "verbose": true
+        }
+    }
+}
