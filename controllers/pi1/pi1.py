@@ -7,6 +7,7 @@ from components.dms_manager import DMSManager
 from components.dpir_manager import DPIRManager
 from components.db_manager import DBManager
 from components.dl_manager import DLManager
+from components.dus_manager import DUSManager
 from controllers.pi1.command_handler import CommandHandler
 
 # NOTE: this function should be moved to a common utility module
@@ -38,6 +39,12 @@ def start_sensors(config, stop_event, publisher=None):
         dpir1_config = config["DPIR1"]
         dpir1_config['code'] = 'DPIR1'
         thread = DPIRManager.start_dpir(dpir1_config, stop_event, publisher)
+        threads.append(thread)
+
+    if "DUS1" in config:
+        dus1_config = config["DUS1"]
+        dus1_config['code'] = 'DUS1'
+        thread = DUSManager.start_dus(dus1_config, stop_event, publisher)
         threads.append(thread)
 
     # TODO: add other sensors when implemented
