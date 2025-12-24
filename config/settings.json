@@ -35,7 +35,8 @@
         "DUS1": {
             "name": "Door ultrasonic sensor",
             "simulated": true,
-            "pin": 17,
+            "trig_pin": 16,
+            "echo_pin":  17,
             "verbose": true
         }
     }
