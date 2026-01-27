@@ -27,18 +27,14 @@ class DMS(DMSInterface):
             )
         )
 
-    def detect_press_change(self) -> bool:
+    def detect_press_change(self):
         if random.random() < 0.08:
-            self.is_pressed = not getattr(self, "is_pressed", False)
+            key = random.choice(choices)
+            self.log(f"Simulated key press: {key}")
+            return key
 
-            index = random.randint(0, len(choices) - 1)
+        return None
 
-            if self.is_pressed:
-                self.log(f"Simulated input (door pressed): {choices[index]}")
-            else:
-                self.log(f"Simulated input (door released): {choices[index]}")
-
-        return getattr(self, "is_pressed", False)
 
     def start(self):
         thread = threading.Thread(

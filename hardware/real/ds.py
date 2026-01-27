@@ -1,6 +1,11 @@
 import time
 import threading
-import RPi.GPIO as GPIO
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    GPIO = None
+    
 from ..base.ds_interface import DSInterface
 
 def loop(ds):
