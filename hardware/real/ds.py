@@ -37,7 +37,7 @@ class DS(DSInterface):
         
         GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-    def detect_state_change(self) -> bool | None:
+    def detect_state_change(self) -> bool:
         button_state = GPIO.input(self.pin)
         current_state = button_state == GPIO.HIGH
         
@@ -63,7 +63,7 @@ class DS(DSInterface):
             
             return self.is_open
         
-        return None
+        return False
 
     def start(self):
         thread = threading.Thread(
