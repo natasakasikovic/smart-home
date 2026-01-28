@@ -8,8 +8,8 @@
         },
         "DS1": {
             "name": "Door sensor",
-            "simulated": true,
-            "pin": 4,
+            "simulated": false,
+            "pin": 26,
             "debounce_ms": 50,
             "verbose": true,
             "poll_interval": 0.5
@@ -19,7 +19,9 @@
             "simulated": true,
             "pin": 27,
             "verbose": true,
-            "poll_interval": 0.5
+            "poll_interval": 0.5,
+            "rows": [25, 8, 7, 1],
+            "cols": [12, 16, 20, 21]
         },
         "DB": {
             "name": "Door Buzzer",
