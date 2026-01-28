@@ -17,11 +17,11 @@ class DPIRManager():
         
     @staticmethod
     def start_dpir(config: Dict[str, Any], stop_event: threading.Event, publisher=None) -> threading.Thread:
-        def dpir_callback(state, cfg):
+        def dpir_callback(cfg):
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "dpir",
-                "state": state
+                "detected": True
             }
             
             if publisher: # TODO: implement publisher

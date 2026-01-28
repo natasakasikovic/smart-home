@@ -40,6 +40,7 @@ class DPIR(DPIRInterface):
 
     def _motion_detected(self):
         self._motion = True
+        self.log('Motion DETECTED (real)')
         if self.callback:
             self.callback(self.config)
 

@@ -2,8 +2,8 @@
     "PI1":{
         "DPIR1": {
             "name": "Door PIR motion sensor",
-            "simulated": true,
-            "pin": 17,
+            "simulated": false,
+            "pin": 16,
             "verbose": true
         },
         "DS1": {
