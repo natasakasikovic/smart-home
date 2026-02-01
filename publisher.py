@@ -26,6 +26,7 @@ class Publisher:
         self.port = config['port']
         self.batch_size = config['batch_size'] if 'batch_size' in config else 5
         self.stop_event = threading.Event()
+        self.thread = None
 
         self.batch = []
         self.current_size = 0
@@ -33,9 +34,9 @@ class Publisher:
         self.publish_event = threading.Event()
 
     def start_daemon(self):
-        publisher_thread = threading.Thread(target=publisher_task, args=(self, self.publish_event))
-        publisher_thread.daemon = True
-        publisher_thread.start()
+        self.thread = threading.Thread(target=publisher_task, args=(self, self.publish_event))
+        self.thread.daemon = True
+        self.thread.start()
 
     def shutdown(self):
         self.stop_event.set()
