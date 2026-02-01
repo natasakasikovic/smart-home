@@ -10,7 +10,8 @@
             "simulated": true,
             "topic": "sensors/dpir1",
             "pin": 16,
-            "verbose": true
+            "verbose": true,
+            "runs_on": "PI1"
         },
         "DS1": {
             "name": "Door sensor",
@@ -19,7 +20,8 @@
             "pin": 26,
             "debounce_ms": 50,
             "verbose": true,
-            "poll_interval": 0.5
+            "poll_interval": 0.5,
+            "runs_on": "PI1"
         },
         "DMS": {
             "name": "Door Membrane Switch",
@@ -29,28 +31,32 @@
             "verbose": true,
             "poll_interval": 0.5,
             "rows": [25, 8, 7, 1],
-            "cols": [12, 16, 20, 21]
+            "cols": [12, 16, 20, 21],
+            "runs_on": "PI1"
         },
         "DB": {
             "name": "Door Buzzer",
             "simulated": true,
             "topic": "sensors/db",
             "pin": 18,
-            "verbose": true
+            "verbose": true,
+            "runs_on": "PI1"
         },
         "DL": {
             "name": "Door Light",
             "simulated": true,
             "topic": "sensors/dl",
             "pin": 16,
-            "verbose": true
+            "verbose": true,
+            "runs_on": "PI1"
         },
         "DUS1": {
             "name": "Door ultrasonic sensor",
             "simulated": true,
             "topic": "sensors/dus1",
             "pin": 17,
-            "verbose": true
+            "verbose": true,
+            "runs_on": "PI1"
         }
     }
   }

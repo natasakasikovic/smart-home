@@ -32,7 +32,8 @@ class DBManager:
                 "name": cfg.get("name", "unknown"),
                 "type": "db",
                 "buzzing": True,
-                "simulated": cfg.get("simulated", True)
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
 
             topic = cfg.get("topic", "sensors/db")

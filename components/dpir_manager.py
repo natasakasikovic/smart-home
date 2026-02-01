@@ -22,7 +22,8 @@ class DPIRManager():
                 "name": cfg.get("name", "unknown"),
                 "type": "dpir",
                 "detected": True,
-                "simulated": cfg.get("simulated", True)
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
             
             topic = cfg.get("topic", "sensors/dpir1")

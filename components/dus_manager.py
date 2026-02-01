@@ -32,7 +32,8 @@ class DUSManager():
                 "name": cfg.get("name", "unknown"),
                 "type": "DUS",
                 "distance_cm": distance,
-                "simulated": cfg.get("simulated", True)
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
 
             topic = cfg.get("topic", "sensors/dus")

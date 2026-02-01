@@ -33,7 +33,8 @@ class DMSManager:
                 "name": cfg.get("name", "unknown"),
                 "type": "DMS",
                 "state": "PRESSED" if state else "RELEASED",
-                "simulated": cfg.get("simulated", True)
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
 
             topic = cfg.get("topic", "sensors/dns")
