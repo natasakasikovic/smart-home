@@ -31,11 +31,12 @@ class DUSManager():
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "DUS",
-                "distance_cm": distance
+                "distance_cm": distance,
+                "simulated": cfg.get("simulated", True)
             }
 
-            if publisher:  # TODO: implement publisher
-                publisher.add_measurement("DUS", payload)
+            topic = cfg.get("topic", "sensors/dus")
+            publisher.add_measurement(topic, payload)
 
         dus = DUSManager.create_dus(config, stop_event, dus_callback)
         thread = dus.start()

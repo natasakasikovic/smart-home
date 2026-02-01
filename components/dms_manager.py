@@ -32,11 +32,12 @@ class DMSManager:
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "DMS",
-                "state": "PRESSED" if state else "RELEASED"
+                "state": "PRESSED" if state else "RELEASED",
+                "simulated": cfg.get("simulated", True)
             }
 
-            if publisher:  # TODO: implement publisher
-                publisher.add_measurement("DMS", payload)
+            topic = cfg.get("topic", "sensors/dns")
+            publisher.add_measurement(topic, payload)
 
         dms = DMSManager.create_dms(config, stop_event, dms_callback)
         thread = dms.start()

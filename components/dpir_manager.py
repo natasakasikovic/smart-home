@@ -21,11 +21,12 @@ class DPIRManager():
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "dpir",
-                "detected": True
+                "detected": True,
+                "simulated": cfg.get("simulated", True)
             }
             
-            if publisher: # TODO: implement publisher
-                    publisher.add_measurement("DPIR", payload)
+            topic = cfg.get("topic", "sensors/dpir1")
+            publisher.add_measurement(topic, payload)
 
         dpir = DPIRManager.create_dpir(config, stop_event, dpir_callback)
         thread = dpir.start()
