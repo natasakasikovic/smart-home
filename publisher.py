@@ -3,22 +3,20 @@ import json
 import paho.mqtt.publish as publish
 
 def publisher_task(publisher, event):
+
     while not publisher.stop_event.is_set():
         event.wait(timeout=1)
-
-        while not publisher.stop_event.is_set():
-            event.wait(timeout=1)
+        
+        with publisher.lock:
+            if not publisher.batch:
+                continue
             
-            with publisher.lock:
-                if not publisher.batch:
-                    continue
-                
-                local_batch = publisher.batch.copy()
-                publisher.batch.clear()
-                publisher.current_size = 0
-            
-            publish.multiple(local_batch, hostname=publisher.hostname, port=publisher.port)
-            event.clear()
+            local_batch = publisher.batch.copy()
+            publisher.batch.clear()
+            publisher.current_size = 0
+        
+        publish.multiple(local_batch, hostname=publisher.hostname, port=publisher.port)
+        event.clear()
 
 class Publisher:
     def __init__(self, config):
