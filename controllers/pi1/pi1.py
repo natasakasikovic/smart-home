@@ -90,12 +90,18 @@ def run():
             except EOFError:
                 stop_event.set()
                 break
+            
     except KeyboardInterrupt:
         stop_event.set()
         publisher.stop_event.set()
 
-    print("[PI1] Waiting for threads to finish...")
-    for t in threads:
-        if t.is_alive():
-            t.join()
-    print("[PI1] Shutdown complete")
+    finally:
+        print("[PI1] Stopping publisher...")
+        publisher.shutdown()
+        
+        print("[PI1] Waiting for sensor threads to finish...")
+        for t in threads:
+            if t.is_alive():
+                t.join(timeout=2)
+        
+        print("[PI1] Shutdown complete")
