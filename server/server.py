@@ -33,7 +33,6 @@ mqtt_client.on_message = lambda client, userdata, msg: save_to_db(msg.topic, jso
 tags = ["simulated", "runs_on", "name", "verbose", "pin"]
 
 def save_to_db(topic, data):
-    print("SAVE TO DB POZVANA")
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
     point = Point(topic)
         
