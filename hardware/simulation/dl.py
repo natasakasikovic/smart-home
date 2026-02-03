@@ -1,8 +1,8 @@
 from hardware.base.dl_interface import DLInterface
 
 class DL(DLInterface):
-    def __init__(self, config, stop_event):
-        super().__init__(config, stop_event)
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
         self.is_on = False
         self.log("Initializing DL (Door Light) simulated on pin {}".format(self.config.get('pin', 'N/A')))
 

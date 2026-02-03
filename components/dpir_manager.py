@@ -17,15 +17,17 @@ class DPIRManager():
         
     @staticmethod
     def start_dpir(config: Dict[str, Any], stop_event: threading.Event, publisher=None) -> threading.Thread:
-        def dpir_callback(state, cfg):
+        def dpir_callback(cfg):
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "dpir",
-                "state": state
+                "detected": True,
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
             
-            if publisher: # TODO: implement publisher
-                    publisher.add_measurement("DPIR", payload)
+            topic = cfg.get("topic", "sensors/dpir1")
+            publisher.add_measurement(topic, payload)
 
         dpir = DPIRManager.create_dpir(config, stop_event, dpir_callback)
         thread = dpir.start()
