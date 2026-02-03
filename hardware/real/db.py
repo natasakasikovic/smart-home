@@ -4,8 +4,8 @@ def loop(ds):
     pass
 
 class DB(DBInterface):
-    def __init__(self, config, stop_event):
-        super().__init__(config, stop_event)
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
         self.log(
             "Initializing REAL DB (Door Buzzer) on pin {}".format(
                 self.config.get("pin", "N/A")

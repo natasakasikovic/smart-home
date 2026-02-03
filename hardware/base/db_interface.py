@@ -4,6 +4,9 @@ from .actuator_interface import ActuatorInterface
 
 class DBInterface(ActuatorInterface):
 
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
+
     @abstractmethod
     def on(self) -> None:
         """Turn buzzer ON"""
