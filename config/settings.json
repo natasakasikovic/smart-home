@@ -37,7 +37,7 @@
         "DB": {
             "name": "Door Buzzer",
             "simulated": true,
-            "topic": "sensors/db",
+            "topic": "actuators/db",
             "pin": 18,
             "verbose": true,
             "runs_on": "PI1"
@@ -45,7 +45,7 @@
         "DL": {
             "name": "Door Light",
             "simulated": true,
-            "topic": "sensors/dl",
+            "topic": "actuators/dl",
             "pin": 16,
             "verbose": true,
             "runs_on": "PI1"

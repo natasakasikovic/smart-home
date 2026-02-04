@@ -45,18 +45,18 @@ def start_sensors(config, stop_event, publisher):
     return threads
 
 
-def start_actuators(config, stop_event):
+def start_actuators(config, stop_event, publisher):
     actuators = {}
 
     if "DB" in config:
         db_config = config["DB"]
         db_config["code"] = "DB"
-        actuators["DB"] = DBManager.start_db(db_config, stop_event)
+        actuators["DB"] = DBManager.start_db(db_config, stop_event, publisher)
 
     if "DL" in config:
         dl_config = config["DL"]
         dl_config["code"] = "DL"
-        actuators["DL"] = DLManager.start_dl(dl_config, stop_event)
+        actuators["DL"] = DLManager.start_dl(dl_config, stop_event, publisher)
 
     return actuators
 
@@ -76,7 +76,7 @@ def run():
     publisher.start_daemon()
 
     threads = start_sensors(pi_config, stop_event, publisher)
-    actuators = start_actuators(pi_config, stop_event)
+    actuators = start_actuators(pi_config, stop_event, publisher)
 
     cmd_handler = CommandHandler(actuators, threads, stop_event)
 

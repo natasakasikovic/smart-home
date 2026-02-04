@@ -26,16 +26,16 @@ class DLManager():
         stop_event: threading.Event,
         publisher = None
     ):
-        def dl_callback(cfg):
+        def dl_callback(cfg, is_on):
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "dl",
-                "turned_on": True,
+                "turned_on": is_on,
                 "simulated": cfg.get("simulated", True),
                 "runs_on": cfg.get("runs_on", "unknown")
             }
 
-            topic = cfg.get("topic", "sensors/dl")
+            topic = cfg.get("topic", "actuators/dl")
             publisher.add_measurement(topic, payload)
 
         dl = DLManager.create_dl(config, stop_event, dl_callback)
