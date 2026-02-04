@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 # InfluxDB Configuration
-token = "_Hej0R5I0Wa7-qnxszcKOn7iZi5AvcfQ-fc_PI5MVcQzq-dxrSf_Simb6U906yi4VgQh3vWByzRkXhxT-QoaRg=="
+token = "XDGVPvq5PH0WSV3OSUGrk2jmUt1oQnDxNQ6ngYDdRk7rCDxb9LUf4myDETWCZH0xxCeEs43SS09CpGJOZu-quw=="
 org = "FTN"
 url = "http://localhost:8086"
 bucket = "example_db"   
@@ -23,8 +23,8 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("sensors/dpir1")
     client.subscribe("sensors/ds1")
     client.subscribe("sensors/dms")
-    client.subscribe("sensors/db")
-    client.subscribe("sensors/dl")
+    client.subscribe("actuators/db")
+    client.subscribe("actuators/dl")
     client.subscribe("sensors/dus1")
 
 mqtt_client.on_connect = on_connect
@@ -35,7 +35,7 @@ tags = ["simulated", "runs_on", "name", "verbose", "pin"]
 def save_to_db(topic, data):
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
     point = Point(topic)
-        
+    
     for key, value in data.items():
         if key in tags:
             point = point.tag(key, value)
