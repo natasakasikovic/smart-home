@@ -3,6 +3,7 @@ import time
 import threading
 from ..base.dms_interface import DMSInterface
 
+choices = [1,2,3,4,5,6,7,8,9,10, 'A', 'B', 'C', 'D', '*', '#', '0']
 
 def loop(dms):
     dms.log("DMS simulation started")
@@ -26,19 +27,14 @@ class DMS(DMSInterface):
             )
         )
 
-    def detect_press_change(self) -> bool:
-        """
-        Detects when someone touches/presses the door handle or door surface.
-        """
+    def detect_press_change(self):
         if random.random() < 0.08:
-            self.is_pressed = not getattr(self, "is_pressed", False)
+            key = random.choice(choices)
+            self.log(f"Simulated key press: {key}")
+            return key
 
-            if self.is_pressed:
-                self.log("DOOR PRESSED (simulated)")
-            else:
-                self.log("DOOR RELEASED (simulated)")
+        return None
 
-        return getattr(self, "is_pressed", False)
 
     def start(self):
         thread = threading.Thread(

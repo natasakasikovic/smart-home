@@ -17,18 +17,8 @@ def loop(db):
 
 
 class DB(DBInterface):
-    def __init__(self, config, stop_event):
-        super().__init__(config, stop_event)
-
-        if GPIO is None:
-            raise RuntimeError("RPi.GPIO is not available. Real DB can only run on Raspberry Pi.")
-
-        self.pin = self.config.get("pin")
-
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin, GPIO.OUT)
-        GPIO.output(self.pin, GPIO.LOW)
-
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
         self.log(
             "Initializing REAL DB (Door Buzzer) on pin {}".format(self.pin)
         )

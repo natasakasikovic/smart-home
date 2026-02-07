@@ -3,8 +3,8 @@ import time
 
 class DB(DBInterface):
 
-    def __init__(self, config, stop_event):
-        super().__init__(config, stop_event)
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
         self.is_on = False
         self.log(
             "Initializing DB (Door Buzzer) on pin {}".format(
@@ -16,12 +16,14 @@ class DB(DBInterface):
         if not self.is_on:
             self.is_on = True
             self.log("BUZZER ON 🔊 (simulated)")
+            self.callback(self.config, self.is_on)
         else:
             self.log("BUZZER IS ALREADY ON")
 
     def off(self):
         if self.is_on:
             self.is_on = False
+            self.callback(self.config, self.is_on)
             self.log("BUZZER OFF 🔇 (simulated)")
         else:
             self.log("BUZZER IS ALREADY OFF")
