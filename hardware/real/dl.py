@@ -39,7 +39,7 @@ def loop(light):
 
 class DL(DLInterface):
     def __init__(self, config, stop_event, callback=None, pipe=None):
-        super().__init__(config, stop_event)
+        super().__init__(config, stop_event, callback)
 
         if GPIO is None:
             raise RuntimeError("RPi.GPIO not available on this system")

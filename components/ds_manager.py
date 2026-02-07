@@ -32,11 +32,13 @@ class DSManager:
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "DS",
-                "state": "OPEN" if state else "CLOSED"
+                "state": "OPEN" if state else "CLOSED",
+                "simulated": cfg.get("simulated", True),
+                "runs_on": cfg.get("runs_on", "unknown")
             }
 
-            if publisher:  # TODO: implement publisher
-                publisher.add_measurement("DS", payload)
+            topic = cfg.get("topic", "sensors/ds1")
+            publisher.add_measurement(topic, payload)
 
         ds = DSManager.create_ds(config, stop_event, ds_callback)
         thread = ds.start()
