@@ -60,12 +60,13 @@
         }
     },
 
-    "PI2":{
+    "PI2": {
         "GSG": {
             "name": "Gyroscope",
             "simulated": true,
             "topic": "sensors/gsg",
             "verbose": true,
+            "poll_interval": 0.1,
             "runs_on": "PI2"
         }
     }

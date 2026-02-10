@@ -3,10 +3,16 @@ import signal
 
 from publisher import Publisher
 from utils.config_loader import load_config
-
+from components.gsg_manager import GSGManager
 
 def start_sensors(config, stop_event, publisher):
-    # TODO: add sensors
+    sensors = []
+    if "GSG" in config:
+      gsg_config = config["GSG"]
+      gsg_config["code"] = "GSG"
+      sensors.append(
+          GSGManager.start_gsg(gsg_config, stop_event, publisher)
+      )
     return []
 
 
