@@ -58,5 +58,15 @@
             "verbose": true,
             "runs_on": "PI1"
         }
+    },
+
+    "PI2":{
+        "GSG": {
+            "name": "Gyroscope",
+            "simulated": true,
+            "topic": "sensors/gsg",
+            "verbose": true,
+            "runs_on": "PI2"
+        }
     }
   }
