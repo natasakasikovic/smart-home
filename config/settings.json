@@ -69,5 +69,16 @@
             "poll_interval": 0.1,
             "runs_on": "PI2"
         }
+    },
+    
+    "PI3": {
+        "DPIR3": {
+            "name": "Living Room Motion Sensor",
+            "simulated": true,
+            "topic": "sensors/dpir3",
+            "pin": 16,
+            "verbose": true,
+            "runs_on": "PI3"
+        }
     }
   }
