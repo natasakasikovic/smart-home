@@ -18,7 +18,7 @@ class GSGManager:
             return GSG(config, stop_event, callback)
         else:
             print(f"Creating real GSG for {config.get('name', 'unknown')}.")
-            from hardware.real.gsg import GSG
+            from hardware.real.gsg.gsg import GSG
             return GSG(config, stop_event, callback)
 
     @staticmethod
