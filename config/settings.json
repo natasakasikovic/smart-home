@@ -79,6 +79,17 @@
             "pin": 16,
             "verbose": true,
             "runs_on": "PI3"
+        },
+        "LCD": {
+            "name": "Living room display",
+            "simulated": true,
+            "topic": "actuators/lcd",
+            "verbose": true,
+            "i2c_address": "0x27",
+            "i2c_address_alt": "0x3F",
+            "columns": 16,
+            "rows": 2,
+            "runs_on": "PI3"
         }
     }
   }
