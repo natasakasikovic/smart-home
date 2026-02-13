@@ -3,8 +3,9 @@ import signal
 
 from publisher import Publisher
 from utils.config_loader import load_config
-from components.gsg_manager import GSGManager
 from components.dpir_manager import DPIRManager
+from components.rgb_manager import RGBManager
+from controllers.pi3.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
     threads = []
@@ -19,7 +20,13 @@ def start_sensors(config, stop_event, publisher):
     return threads
 
 def start_actuators(config, stop_event, publisher):
-    return []
+    actuators = {}
+    if "RGB" in config:
+        rgb_config = config["RGB"]
+        rgb_config["code"] = "RGB"
+        rgb = RGBManager.start_rgb(rgb_config, stop_event, publisher)
+        actuators["RGB"] = rgb
+    return actuators
 
 
 def run():
@@ -38,13 +45,18 @@ def run():
 
     threads = start_sensors(pi_config, stop_event, publisher)
     actuators = start_actuators(pi_config, stop_event, publisher)
+    cmd_handler = CommandHandler(actuators, threads, stop_event)
 
     print("[PI3] System ready.")
 
     try:
         while not stop_event.is_set():
-            # TODO: add command handler
-            stop_event.wait(0.5)
+            try:
+                command = input(">>> ")
+                cmd_handler.handle(command)
+            except EOFError:
+                stop_event.set()
+                break
 
     except KeyboardInterrupt:
         stop_event.set()
