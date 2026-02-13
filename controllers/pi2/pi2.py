@@ -13,7 +13,7 @@ def start_sensors(config, stop_event, publisher):
       sensors.append(
           GSGManager.start_gsg(gsg_config, stop_event, publisher)
       )
-    return []
+    return sensors
 
 
 def start_actuators(config, stop_event, publisher):
