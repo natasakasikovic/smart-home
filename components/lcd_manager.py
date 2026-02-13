@@ -1,7 +1,6 @@
 import threading
 from typing import Callable, Dict, Any
 
-
 class LCDManager:
 
     @staticmethod
@@ -18,7 +17,7 @@ class LCDManager:
             return LCD(config, stop_event, callback)
         else:
             print(f"Creating real LCD for {config.get('name', 'unknown')}.")
-            from hardware.real.lcd import LCD
+            from hardware.real.lcd.lcd import LCD
             return LCD(config, stop_event, callback)
 
     @staticmethod

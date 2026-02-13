@@ -1,14 +1,10 @@
 import time
 import threading
 
-try:
-    from PCF8574 import PCF8574_GPIO
-    from Adafruit_LCD1602 import Adafruit_CharLCD
-except ImportError:
-    PCF8574_GPIO = None
-    Adafruit_CharLCD = None
+from ...real.lcd.PCF8574 import PCF8574_GPIO
+from ...real.lcd.Adafruit_LCD1602 import Adafruit_CharLCD
 
-from ..base.lcd_interface import LCDInterface
+from ...base.lcd_interface import LCDInterface
 
 
 def loop(lcd_obj):
@@ -21,10 +17,6 @@ def loop(lcd_obj):
 class LCD(LCDInterface):
     def __init__(self, config, stop_event, callback):
         super().__init__(config, stop_event, callback)
-
-        if PCF8574_GPIO is None or Adafruit_CharLCD is None:
-            raise ImportError("PCF8574 and Adafruit_LCD1602 libraries required for real LCD")
-
         self.i2c_address = int(config.get("i2c_address", "0x27"), 16)
         self.i2c_address_alt = int(config.get("i2c_address_alt", "0x3F"), 16)
         
@@ -47,7 +39,7 @@ class LCD(LCDInterface):
         self.log(f"Initializing REAL LCD ({self.columns}x{self.rows})")
 
 
-    def display_text(self, text: str, line: int = 0) -> None:
+    def display_text(self, text: str, line: int = 0) -> None: # TODO: delete when you connect sensors if it's redundant
         if line < 0 or line >= self.rows:
             if self.config.get("verbose", False): 
                 self.log(f"Invalid line number: {line}")
