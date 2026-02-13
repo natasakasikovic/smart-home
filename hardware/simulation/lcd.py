@@ -73,8 +73,10 @@ class LCD(LCDInterface):
 
 
     def get_cpu_temp(self):
-        return '42.50 C'
-    
+        import random
+        temp = random.uniform(40.0, 50.0)
+        return f"{temp:.2f} C"
+
 
     def get_time_now(self):
         from datetime import datetime
