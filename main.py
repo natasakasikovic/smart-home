@@ -1,6 +1,7 @@
 import sys
 from controllers.pi1 import pi1 
 from controllers.pi2 import pi2
+from controllers.pi3 import pi3
 
 def main():
     if len(sys.argv) > 1:
@@ -12,6 +13,9 @@ def main():
         pi1.run()
     elif pi == "PI2":
         pi2.run()
+    elif pi == "PI3":
+        pi3.run()
+
     else:
         print(f"ERROR: Unknown PI: {pi}")
         print("Usage: python main.py [PI1]")
