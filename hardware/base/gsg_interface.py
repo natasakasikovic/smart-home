@@ -11,13 +11,9 @@ class GSGInterface(SensorInterface):
         self.last_accel = [0, 0, 0]
         self.last_gyro = [0, 0, 0]
 
-    @abstractmethod
-    def read_sensor_data(self) -> dict:
-        pass
-
     def has_significant_change(self, current_accel, current_gyro) -> bool:
-        accel_threshold = self.config.get("accel_threshold", 500)  # Raw values
-        gyro_threshold = self.config.get("gyro_threshold", 200)    # Raw values
+        accel_threshold = self.config.get("accel_threshold", 2000)   
+        gyro_threshold = self.config.get("gyro_threshold", 1000)     
 
         # Check accelerometer change
         accel_change = any(

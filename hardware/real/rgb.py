@@ -15,12 +15,6 @@ class RGB(RGBInterface):
         self.pin_blue = self.config.get("blue_pin")
         self.current_color = "off"
 
-        if GPIO is None:
-            raise RuntimeError("RPi.GPIO nije dostupan. Pokreni na Raspberry Pi.")
-
-        if self.pin_red is None or self.pin_green is None or self.pin_blue is None:
-            raise ValueError("RGB config mora imati 'pin_red', 'pin_green', i 'pin_blue'!")
-
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_red, GPIO.OUT)

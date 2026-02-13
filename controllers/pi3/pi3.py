@@ -5,6 +5,7 @@ from publisher import Publisher
 from utils.config_loader import load_config
 from components.dpir_manager import DPIRManager
 from components.rgb_manager import RGBManager
+from components.lcd_manager import LCDManager
 from controllers.pi3.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
@@ -26,6 +27,12 @@ def start_actuators(config, stop_event, publisher):
         rgb_config["code"] = "RGB"
         rgb = RGBManager.start_rgb(rgb_config, stop_event, publisher)
         actuators["RGB"] = rgb
+
+    if "LCD" in config:
+        db_config = config["LCD"]
+        db_config["code"] = "LCD"
+        actuators["LCD"] = LCDManager.start_lcd(db_config, stop_event, publisher)
+
     return actuators
 
 

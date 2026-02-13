@@ -259,6 +259,15 @@ class CommandHandler:
         print("  rgb cycle               - Start color cycling")
         print("  rgb stop                - Stop color cycling")
         print("\n  help                    - Show this help message")
+        print("  exit, quit, e          - Exit the application")
+        print("  status                 - Show system status")
+        print("  lcd on                 - Turn LCD backlight ON")
+        print("  lcd off                - Turn LCD backlight OFF")
+        print("  lcd clear              - Clear LCD display")
+        print("  lcd write <line> <text> - Write text to line (0 or 1)")
+        print("  lcd cpu                - Start CPU temp/time auto-update")
+        print("  lcd stop               - Stop auto-update")
+        print("  help                   - Show this help message")
         print()
     
     def handle(self, command_line):
