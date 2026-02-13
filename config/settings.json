@@ -80,6 +80,16 @@
             "verbose": true,
             "runs_on": "PI3"
         },
+        "RGB": {
+            "name": "Bedroom RGB",
+            "simulated": true,
+            "red_pin": 12,
+            "green_pin": 13,
+            "blue_pin": 19,
+            "runs_on": "PI3",
+            "verbose": true,
+            "topic": "actuators/rgb"
+        },
         "LCD": {
             "name": "Living room display",
             "simulated": true,
