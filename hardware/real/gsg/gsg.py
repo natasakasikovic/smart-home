@@ -1,21 +1,38 @@
 import time
 import threading
 
-from ...real.gsg import MPU6050
+from ...real.gsg.MPU6050 import MPU6050
 from ...base.gsg_interface import GSGInterface
+
 
 def loop(gsg):
     gsg.log("REAL GSG loop started")
 
     while not gsg.should_stop():
-        data = gsg.read_sensor_data()
+        try:
+            accel = gsg.mpu.get_acceleration()
+            gyro = gsg.mpu.get_rotation()
 
-        if data is not None:
-            # Only send callback if there's a significant change
+            data = {
+                "accel": accel,
+                "gyro": gyro,
+                "accel_g": [accel[0] / 16384.0, accel[1] / 16384.0, accel[2] / 16384.0],
+                "gyro_dps": [gyro[0] / 131.0, gyro[1] / 131.0, gyro[2] / 131.0],
+            }
+            if gsg.config.get("verbose", False):
+                gsg.log(f"Accel (raw): {accel[0]:6d} {accel[1]:6d} {accel[2]:6d}")
+                gsg.log(f"Gyro  (raw): {gyro[0]:6d} {gyro[1]:6d} {gyro[2]:6d}")
+                gsg.log(f"Accel (g):   {data['accel_g'][0]:6.2f} {data['accel_g'][1]:6.2f} {data['accel_g'][2]:6.2f}")
+                gsg.log(f"Gyro  (°/s): {data['gyro_dps'][0]:6.2f} {data['gyro_dps'][1]:6.2f} {data['gyro_dps'][2]:6.2f}")
+
             if gsg.has_significant_change(data["accel"], data["gyro"]):
                 gsg.callback(data, gsg.config)
+
                 if gsg.config.get("verbose", False):
                     gsg.log("Significant change detected - sending update")
+
+        except Exception as e:
+            gsg.log(f"Error reading sensor data: {e}")
 
         time.sleep(gsg.config.get("poll_interval", 0.1))
 
@@ -29,43 +46,20 @@ class GSG(GSGInterface):
 
         self.log("Initializing REAL GSG (Gyroscope) - MPU6050")
 
-        if MPU6050 is None:
-            raise ImportError("MPU6050 library not available. Install it to use real GSG.")
-
         try:
-            self.mpu = MPU6050.MPU6050()
+            self.mpu = MPU6050()
             self.mpu.dmp_initialize()
             self.log("MPU6050 initialized successfully")
+
         except Exception as e:
             self.log(f"Error initializing MPU6050: {e}")
             raise
-
-    def read_sensor_data(self) -> dict:
-        """Reads accelerometer and gyroscope data from MPU6050"""
-        try:
-            accel = self.mpu.get_acceleration()
-            gyro = self.mpu.get_rotation()
-
-            # Convert to g and degrees per second
-            accel_g = [accel[0]/16384.0, accel[1]/16384.0, accel[2]/16384.0]
-            gyro_dps = [gyro[0]/131.0, gyro[1]/131.0, gyro[2]/131.0]
-
-            return {
-                "accel": accel,
-                "gyro": gyro,
-                "accel_g": accel_g,
-                "gyro_dps": gyro_dps
-            }
-
-        except Exception as e:
-            self.log(f"Error reading sensor data: {e}")
-            return None
 
     def start(self):
         thread = threading.Thread(
             target=loop,
             args=(self,),
-            name=f"GSG-{self.config.get('name', 'unknown')}",
+            name=f"GSG-{self.config.get('name', 'Gyroscope')}",
             daemon=True
         )
         thread.start()
@@ -74,9 +68,3 @@ class GSG(GSGInterface):
 
     def cleanup(self):
         self.log("Cleaning up MPU6050")
-
-    def log(self, message: str) -> None:
-        super().log(message)
-
-    def should_stop(self):
-        return super().should_stop()
