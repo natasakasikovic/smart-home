@@ -1,25 +1,69 @@
+import time
+
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    GPIO = None
+
 from ..base.db_interface import DBInterface
 
-def loop(ds):
-    pass
 
 class DB(DBInterface):
-    def __init__(self, config, stop_event):
-        super().__init__(config, stop_event)
-        self.log(
-            "Initializing REAL DB (Door Buzzer) on pin {}".format(
-                self.config.get("pin", "N/A")
-            )
-        )
+    def __init__(self, config, stop_event, callback):
+        super().__init__(config, stop_event, callback)
+
+        self.pin = self.config.get("pin")
+        self.is_on = False
+
+        self.default_on_duration = self.config.get("on_duration", 0.3)
+
+        if GPIO is None:
+            raise RuntimeError("RPi.GPIO nije dostupan. Pokreni na Raspberry Pi.")
+
+        if self.pin is None:
+            raise ValueError("Door Buzzer config nema 'pin'!")
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.output(self.pin, GPIO.LOW)
+
+        self.log(f"Initializing REAL DB (Door Buzzer) on pin {self.pin}")
 
     def on(self):
-        print("Real DB ON not implemented yet")
+        if not self.is_on:
+            self.is_on = True
+            GPIO.output(self.pin, GPIO.HIGH)
+
+            self.log("BUZZER ON 🔊 (real)")
+            self.callback(self.config, self.is_on)
+
+            time.sleep(self.default_on_duration)
+
+            self.off()
+        else:
+            self.log("BUZZER IS ALREADY ON")
 
     def off(self):
-        print("Real DB OFF not implemented yet")
+        if self.is_on:
+            self.is_on = False
+            GPIO.output(self.pin, GPIO.LOW)
+
+            self.callback(self.config, self.is_on)
+            self.log("BUZZER OFF 🔇 (real)")
+        else:
+            GPIO.output(self.pin, GPIO.LOW)
 
     def beep(self, duration: float):
-        print(f"Real DB BEEP for {duration}s not implemented yet")
+        self.is_on = True
+        GPIO.output(self.pin, GPIO.HIGH)
+        self.callback(self.config, self.is_on)
+
+        self.log(f"BUZZER BEEP for {duration}s (real)")
+        time.sleep(duration)
+
+        self.off()
 
     def cleanup(self):
-        print("Real DB cleanup not implemented yet")
+        GPIO.output(self.pin, GPIO.LOW)
+        GPIO.cleanup(self.pin)
+        self.log("Real DB GPIO cleaned up")
