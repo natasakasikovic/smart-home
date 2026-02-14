@@ -57,6 +57,15 @@
             "pin": 17,
             "verbose": true,
             "runs_on": "PI1"
+        },
+        "DHT3": {
+            "name": "Kitchen DHT",
+            "simulated": true,
+            "topic": "sensors/dht/kitchen",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI2"
         }
     },
 
