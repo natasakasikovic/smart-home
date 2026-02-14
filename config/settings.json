@@ -53,19 +53,11 @@
         "DUS1": {
             "name": "Door ultrasonic sensor",
             "simulated": true,
+            "trig_pin": 4,
+            "echo_pin":  17,
+            "verbose": true,
             "topic": "sensors/dus1",
-            "pin": 17,
-            "verbose": true,
             "runs_on": "PI1"
-        },
-        "DHT3": {
-            "name": "Kitchen DHT",
-            "simulated": true,
-            "topic": "sensors/dht/kitchen",
-            "verbose": true,
-            "pin": 4,
-            "poll_interval": 2.0,
-            "runs_on": "PI2"
         }
     },
 
@@ -76,6 +68,15 @@
             "topic": "sensors/gsg",
             "verbose": true,
             "poll_interval": 0.1,
+            "runs_on": "PI2"
+        },
+            "DHT3": {
+            "name": "Kitchen DHT",
+            "simulated": true,
+            "topic": "sensors/dht/kitchen",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
             "runs_on": "PI2"
         }
     },
