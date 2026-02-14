@@ -57,6 +57,15 @@
             "pin": 17,
             "verbose": true,
             "runs_on": "PI1"
+        },
+        "DHT3": {
+            "name": "Kitchen DHT",
+            "simulated": true,
+            "topic": "sensors/dht/kitchen",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI2"
         }
     },
 
@@ -99,6 +108,24 @@
             "i2c_address_alt": "0x3F",
             "columns": 16,
             "rows": 2,
+            "runs_on": "PI3"
+        },
+        "DHT1": {
+            "name": "Bedroom DHT",
+            "simulated": true,
+            "topic": "sensors/dht/beedroom",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI3"
+        },
+        "DHT2": {
+            "name": "Master Bedroom DHT",
+            "simulated": true,
+            "topic": "sensors/dht/master-beedroom",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
             "runs_on": "PI3"
         }
     }

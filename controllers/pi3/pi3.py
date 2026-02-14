@@ -6,6 +6,7 @@ from utils.config_loader import load_config
 from components.dpir_manager import DPIRManager
 from components.rgb_manager import RGBManager
 from components.lcd_manager import LCDManager
+from components.dht_manager import DHTManager
 from controllers.pi3.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
@@ -16,6 +17,20 @@ def start_sensors(config, stop_event, publisher):
         dpir1_config["code"] = "DPIR3"
         threads.append(
             DPIRManager.start_dpir(dpir1_config, stop_event, publisher)
+        )
+
+    if "DHT1" in config:
+        dht1_config = config["DHT1"]
+        dht1_config["code"] = "DHT1"
+        threads.append(
+            DHTManager.start_dht(dht1_config, stop_event, publisher)
+        )
+    
+    if "DHT2" in config:
+        dht2_config = config["DHT2"]
+        dht2_config["code"] = "DHT2"
+        threads.append(
+            DHTManager.start_dht(dht2_config, stop_event, publisher)
         )
     
     return threads
