@@ -55,11 +55,10 @@
             "simulated": true,
             "trig_pin": 4,
             "echo_pin":  17,
-            "verbose": true
-            "topic": "sensors/dus1",
             "verbose": true,
+            "topic": "sensors/dus1",
             "runs_on": "PI1"
-        },
+        }
     },
 
     "PI2": {
