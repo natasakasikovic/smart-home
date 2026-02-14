@@ -13,7 +13,7 @@ class DHTManager:
             return DHT(config, stop_event, callback)
         else:
             print(f"Creating real DHT for {config.get('name', 'unknown')}.")
-            from hardware.real.dht import DHT
+            from hardware.real.dht.dht import DHT
             return DHT(config, stop_event, callback)
 
     @staticmethod
