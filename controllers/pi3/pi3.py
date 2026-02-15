@@ -9,6 +9,8 @@ from components.lcd_manager import LCDManager
 from components.dht_manager import DHTManager
 from controllers.pi3.command_handler import CommandHandler
 
+import command_listener
+
 def start_sensors(config, stop_event, publisher):
     threads = []
     
@@ -69,6 +71,8 @@ def run():
     actuators = start_actuators(pi_config, stop_event, publisher)
     cmd_handler = CommandHandler(actuators, threads, stop_event)
 
+    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
+
     print("[PI3] System ready.")
 
     try:
@@ -87,6 +91,7 @@ def run():
     finally:
         print("[PI3] Stopping publisher...")
         publisher.shutdown()
+        command_listener.stop(cmd_client)
 
         print("[PI3] Waiting for threads to finish...")
         for t in threads:

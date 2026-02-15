@@ -16,9 +16,9 @@ services:
 
   influxdb:
     image: influxdb
-    container_name: influxdb
+    container_name: influxdbiot
     ports:
-      - "8086:8086"
+      - "8087:8086"
     environment:
       - INFLUXDB_DB=${INFLUXDB_DB}
       - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER}

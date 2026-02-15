@@ -8,6 +8,8 @@ from components.dl_manager import DLManager
 from components.dus_manager import DUSManager
 from controllers.pi1.command_handler import CommandHandler
 
+import command_listener
+
 from publisher import Publisher
 from utils.config_loader import load_config
 
@@ -77,6 +79,8 @@ def run():
 
     threads = start_sensors(pi_config, stop_event, publisher)
     actuators = start_actuators(pi_config, stop_event, publisher)
+    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
+
 
     cmd_handler = CommandHandler(actuators, threads, stop_event)
 
@@ -98,6 +102,7 @@ def run():
     finally:
         print("[PI1] Stopping publisher...")
         publisher.shutdown()
+        command_listener.stop(cmd_client)
         
         print("[PI1] Waiting for sensor threads to finish...")
         for t in threads:

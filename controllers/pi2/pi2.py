@@ -1,6 +1,8 @@
 import threading
 import signal
 
+import command_listener
+
 from publisher import Publisher
 from utils.config_loader import load_config
 from components.gsg_manager import GSGManager
@@ -37,6 +39,7 @@ def run():
 
     threads = start_sensors(pi_config, stop_event, publisher)
     actuators = start_actuators(pi_config, stop_event, publisher)
+    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
 
     print("[PI2] System ready.")
 
@@ -52,6 +55,7 @@ def run():
     finally:
         print("[PI2] Stopping publisher...")
         publisher.shutdown()
+        command_listener.stop(cmd_client)
 
         print("[PI2] Waiting for threads to finish...")
         for t in threads:
