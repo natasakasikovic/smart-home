@@ -5,12 +5,15 @@ import Actuators from './Actuators';
 import AlarmPanel from './AlarmPanel';
 import GrafanaPanel from './GrafanaPanel';
 import WebcamPanel from './WebcamPanel';
+import KitchenTimer from './KitchenTimer';
+import AlarmNotification from './AlarmNotification';
 
 export default function Dashboard() {
   const { state, connected } = useSmartHome();
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
+      <AlarmNotification alarmActive={state.alarm_active} />
       
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
@@ -44,6 +47,8 @@ export default function Dashboard() {
 
       {/* Actuators */}
       <Actuators actuators={state.actuators} />
+      
+      <KitchenTimer />
 
       {/* Grafana Dashboard */}
       <GrafanaPanel />

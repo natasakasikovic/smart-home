@@ -9,7 +9,6 @@ export default function AlarmPanel({ state }) {
     try {
       await armAlarm();
       setError('');
-      alert('✅ Alarm armed!');
     } catch (err) {
       setError('Failed to arm');
     }
@@ -20,7 +19,6 @@ export default function AlarmPanel({ state }) {
       await disarmAlarm(pin);
       setPin('');
       setError('');
-      alert('✅ Alarm disarmed!');
     } catch (err) {
       setError('❌ Wrong PIN');
     }
@@ -29,15 +27,6 @@ export default function AlarmPanel({ state }) {
   return (
     <div className="bg-gray-800 p-6 rounded-lg border-2 border-red-600 mb-8">
       <h2 className="text-2xl font-bold mb-4">🚨 Alarm System</h2>
-      
-      <div className="flex gap-4 items-center mb-4">
-        <div className={`px-4 py-2 rounded font-bold ${state.alarm_active ? 'bg-red-600' : 'bg-gray-700'}`}>
-          {state.alarm_active ? '🚨 ALARM ACTIVE' : '✅ No Alarm'}
-        </div>
-        <div className={`px-4 py-2 rounded font-bold ${state.security_armed ? 'bg-orange-600' : 'bg-gray-700'}`}>
-          {state.security_armed ? '🔒 ARMED' : '🔓 DISARMED'}
-        </div>
-      </div>
 
       <div className="flex gap-4">
         <button

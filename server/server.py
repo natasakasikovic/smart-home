@@ -86,6 +86,7 @@ def control_actuator(code):
 @app.route('/api/alarm/arm', methods=['POST'])
 def arm_alarm():
     state.set_security(True)
+    state.set_alarm(True)
     socketio.emit('alarm', {'armed': True})
     return jsonify({"status": "armed"})
 
