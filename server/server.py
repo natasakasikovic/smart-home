@@ -103,6 +103,20 @@ def disarm_alarm():
         return jsonify({"status": "ok"})
     else:
         return jsonify({"error": "Wrong PIN"}), 401
+    
+
+@app.route('/api/person_count', methods=['POST'])
+def update_person_count():
+    data = request.json
+    action = data.get('action')
+    value = data.get('value', 0)
+    
+    if action == 'set':
+        state.set_person_count(value)
+    
+    socketio.emit('person_count', {'count': state.person_count})
+    
+    return jsonify({"status": "ok", "person_count": state.person_count})
 
 
 # WebSocket

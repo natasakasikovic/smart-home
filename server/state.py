@@ -54,4 +54,7 @@ class State:
         with self.lock:
             return self.pin_code == pin
 
+    def set_person_count(self, count):
+            with self.lock:
+                self.person_count = max(0, count)
 state = State()

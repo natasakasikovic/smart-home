@@ -7,6 +7,7 @@ import GrafanaPanel from './GrafanaPanel';
 import WebcamPanel from './WebcamPanel';
 import KitchenTimer from './KitchenTimer';
 import AlarmNotification from './AlarmNotification';
+import PersonCounter from './PersonCounter';
 
 export default function Dashboard() {
   const { state, connected } = useSmartHome();
@@ -26,10 +27,7 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="bg-gray-800 p-6 rounded-lg">
-          <p className="text-gray-400 text-sm">People Inside</p>
-          <p className="text-3xl font-bold">{state.person_count}</p>
-        </div>
+        <PersonCounter currentCount={state.person_count} />
         <div className="bg-gray-800 p-6 rounded-lg">
           <p className="text-gray-400 text-sm">Active Sensors</p>
           <p className="text-3xl font-bold">{Object.keys(state.sensors).length}</p>
@@ -42,18 +40,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Alarm Panel */}
       <AlarmPanel state={state} />
 
-      {/* Actuators */}
       <Actuators actuators={state.actuators} />
       
       <KitchenTimer />
 
-      {/* Grafana Dashboard */}
       <GrafanaPanel />
 
-      {/* Webcam */}
       <WebcamPanel />
 
       {/* Live Sensor Data */}

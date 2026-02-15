@@ -16,3 +16,6 @@ export const controlActuator = (code, action, params = {}) =>
 
 export const armAlarm = () => api.post('/alarm/arm');
 export const disarmAlarm = (pin) => api.post('/alarm/disarm', { pin });
+
+export const updatePersonCount = (action, value = 1) => 
+  api.post('/person_count', { action, value });
