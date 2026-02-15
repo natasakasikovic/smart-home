@@ -47,13 +47,19 @@ def run():
     threads = start_sensors(pi_config, stop_event, publisher)
     actuators = start_actuators(pi_config, stop_event, publisher)
 
-    print("[PI2] System ready.")
+    cmd_handler = CommandHandler(actuators, threads, stop_event)
+
+    print("[PI2] System ready. Type 'help' for commands.")
 
     try:
         while not stop_event.is_set():
-            # TODO: add command handler
-            stop_event.wait(0.5)
-
+            try:
+                command = input(">>> ")
+                cmd_handler.handle(command)
+            except EOFError:
+                stop_event.set()
+                break
+            
     except KeyboardInterrupt:
         stop_event.set()
         publisher.stop_event.set()
