@@ -38,7 +38,7 @@ class RGB(RGBInterface):
         self.log(f"RGB LED set to {color_name} 💡 (real)")
         self.callback(self.config, self.current_color)
 
-    def turn_off(self):
+    def off(self):
         GPIO.output(self.pin_red, GPIO.LOW)
         GPIO.output(self.pin_green, GPIO.LOW)
         GPIO.output(self.pin_blue, GPIO.LOW)
@@ -69,9 +69,6 @@ class RGB(RGBInterface):
         self.set_color(False, True, True)
 
     def on():
-        pass
-
-    def off():
         pass
 
     def _get_color_name(self, r: bool, g: bool, b: bool) -> str:

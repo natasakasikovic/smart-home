@@ -16,9 +16,9 @@ services:
 
   influxdb:
     image: influxdb
-    container_name: influxdb
+    container_name: influxdbiot
     ports:
-      - "8086:8086"
+      - "8087:8086"
     environment:
       - INFLUXDB_DB=${INFLUXDB_DB}
       - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER}
@@ -39,6 +39,9 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
     networks:
       - iot-network
 

@@ -1,34 +1,34 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+from flask_socketio import SocketIO
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 import json
 
-app = Flask(__name__)
+from state import state
+from mqtt_listener import MQTTListener
 
-# InfluxDB Configuration
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 token = "XDGVPvq5PH0WSV3OSUGrk2jmUt1oQnDxNQ6ngYDdRk7rCDxb9LUf4myDETWCZH0xxCeEs43SS09CpGJOZu-quw=="
 org = "FTN"
-url = "http://localhost:8086"
-bucket = "example_db"   
+url = "http://localhost:8087"
+bucket = "example_db"
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
-
-# MQTT Configuration
 mqtt_client = mqtt.Client()
 mqtt_client.connect("127.0.0.1", 1883, 60)
-mqtt_client.loop_start()
 
 def on_connect(client, userdata, flags, rc):
-    client.subscribe("sensors/dpir1")
-    client.subscribe("sensors/ds1")
-    client.subscribe("sensors/dms")
-    client.subscribe("actuators/db")
-    client.subscribe("actuators/dl")
-    client.subscribe("sensors/dus1")
+    client.subscribe("sensors/#")
+    client.subscribe("actuators/#")
 
 mqtt_client.on_connect = on_connect
-mqtt_client.on_message = lambda client, userdata, msg: save_to_db(msg.topic, json.loads(msg.payload.decode('utf-8')))
+mqtt_client.on_message = lambda c, u, msg: save_to_db(msg.topic, json.loads(msg.payload.decode('utf-8')))
+mqtt_client.loop_start()
 
 tags = ["simulated", "runs_on", "name", "verbose", "pin"]
 
@@ -40,9 +40,91 @@ def save_to_db(topic, data):
         if key in tags:
             point = point.tag(key, value)
         else:
-            point = point.field(key, value)
+            if isinstance(value, dict):
+                for sub_key, sub_value in value.items():
+                    point = point.field(f"{key}_{sub_key}", sub_value)
+            else:
+                point = point.field(key, value)
     
-    write_api.write(bucket=bucket, org=org, record=point)
+    try:
+        write_api.write(bucket=bucket, org=org, record=point)
+    except Exception as e:
+        print(f"[INFLUX_ERROR] Failed to save {topic}: {e}")
+
+
+
+mqtt_listener = MQTTListener(broker="127.0.0.1", port=1883, socketio=socketio)
+mqtt_listener.start()
+
+
+@app.route('/api/state', methods=['GET'])
+def get_state():
+    return jsonify(state.get_all())
+
+
+@app.route('/api/actuator/<code>', methods=['POST'])
+def control_actuator(code):
+    """
+    Body example:
+    - DB/DL: {"action": "on"} or {"action": "off"}
+    - RGB: {"action": "set_color", "params": {"red": true, "green": false, "blue": true}}
+    - LCD: {"action": "display_text", "params": {"text": "Hello", "line": 0}}
+    """
+    data = request.json
+    action = data.get('action')
+    params = data.get('params', {})
+    
+    topic = f"commands/{code.lower()}"
+    mqtt_listener.publish(topic, {
+        "action": action,
+        "params": params
+    })
+    
+    return jsonify({"status": "ok", "actuator": code, "action": action})
+
+
+@app.route('/api/alarm/arm', methods=['POST'])
+def arm_alarm():
+    state.set_security(True)
+    state.set_alarm(True)
+    socketio.emit('alarm', {'armed': True})
+    return jsonify({"status": "armed"})
+
+
+@app.route('/api/alarm/disarm', methods=['POST'])
+def disarm_alarm():
+    data = request.json
+    pin = data.get('pin')
+    
+    if state.check_pin(pin):
+        state.set_security(False)
+        state.set_alarm(False)
+        socketio.emit('alarm', {'armed': False, 'active': False})
+        return jsonify({"status": "ok"})
+    else:
+        return jsonify({"error": "Wrong PIN"}), 401
+    
+
+@app.route('/api/person_count', methods=['POST'])
+def update_person_count():
+    data = request.json
+    action = data.get('action')
+    value = data.get('value', 0)
+    
+    if action == 'set':
+        state.set_person_count(value)
+    
+    socketio.emit('person_count', {'count': state.person_count})
+    
+    return jsonify({"status": "ok", "person_count": state.person_count})
+
+
+# WebSocket
+@socketio.on('connect')
+def handle_connect():
+    print("[WS] Client connected")
+    socketio.emit('state', state.get_all())
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000)

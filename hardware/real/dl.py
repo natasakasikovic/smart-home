@@ -54,6 +54,7 @@ class DL(DLInterface):
         GPIO.setup(self.pin, GPIO.OUT)
         GPIO.output(self.pin, GPIO.LOW)
 
+        self.callback(self.config, self.is_on)
         self.log("Initializing REAL DL (Door Light) on pin {}".format(self.config.get('pin', 'N/A')))
 
     def on(self):

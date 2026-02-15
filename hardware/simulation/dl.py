@@ -4,6 +4,7 @@ class DL(DLInterface):
     def __init__(self, config, stop_event, callback):
         super().__init__(config, stop_event, callback)
         self.is_on = False
+        self.callback(self.config, self.is_on)
         self.log("Initializing DL (Door Light) simulated on pin {}".format(self.config.get('pin', 'N/A')))
 
     def on(self):
