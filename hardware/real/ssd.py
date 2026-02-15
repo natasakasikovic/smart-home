@@ -50,7 +50,7 @@ class SSD(SSDInterface):
         self.display_buffer = " " * len(self.digits)
         self.log("GPIO 7-Segment initialized")
     
-    def display_number(self, value: str) -> None:
+    def display_time(self, value: str) -> None:
         value = str(value).rjust(len(self.digits))[:len(self.digits)]
         self.display_buffer = value
         

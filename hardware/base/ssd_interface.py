@@ -15,7 +15,7 @@ class SSDInterface(ABC):
         self.log(f"{self.name} interface initialized")
 
     @abstractmethod
-    def display_number(self, value: str) -> None:
+    def display_time(self, value: str) -> None:
         pass
 
     @abstractmethod

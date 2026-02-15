@@ -40,7 +40,7 @@ class CommandHandler:
                 print("Usage: ssd display <value>")
                 return
             value = args[1]
-            self.actuators["4SD"].display_number(value)
+            self.actuators["4SD"].display_time(value)
         elif action == "clear":
             self.actuators["4SD"].clear()
         else:
