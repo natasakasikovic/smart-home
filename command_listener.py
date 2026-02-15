@@ -35,6 +35,8 @@ def execute_action(actuator, code, action, params):
                 params.get('green', False),
                 params.get('blue', False)
             )
+        elif action == "off":
+            actuator.off()
     
     # LCD
     elif code == "LCD":

@@ -8,7 +8,7 @@ class RGBInterface(ActuatorInterface):
         super().__init__(config, stop_event, callback)
 
     @abstractmethod
-    def turn_off(self) -> None:
+    def off(self) -> None:
         """Turn RGB LED OFF"""
         pass
 

@@ -23,10 +23,7 @@ class RGB(RGBInterface):
     def on():
         pass
 
-    def off():
-        pass
-
-    def turn_off(self):
+    def off(self):
         self.current_color = "off"
         self.log("RGB LED OFF 🌑 (simulated)")
         self.callback(self.config, self.current_color)
