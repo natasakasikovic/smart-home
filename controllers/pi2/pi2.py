@@ -4,6 +4,8 @@ import signal
 from publisher import Publisher
 from utils.config_loader import load_config
 from components.gsg_manager import GSGManager
+from components.ssd_manager import SSDManager
+from controllers.pi2.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
     sensors = []
@@ -17,8 +19,15 @@ def start_sensors(config, stop_event, publisher):
 
 
 def start_actuators(config, stop_event, publisher):
-    # TODO: add actuators
-    return {}
+    
+    actuators = {}
+    if "4SD" in config:
+        ssd_config = config["4SD"]
+        ssd_config["code"] = "4SD"
+        ssd = SSDManager.start_ssd(ssd_config, stop_event, publisher)
+        actuators["4SD"] = ssd
+
+    return actuators
 
 
 def run():
