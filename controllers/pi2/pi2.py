@@ -7,6 +7,7 @@ from publisher import Publisher
 from utils.config_loader import load_config
 from components.gsg_manager import GSGManager
 from components.ssd_manager import SSDManager
+from components.dht_manager import DHTManager
 from controllers.pi2.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
@@ -17,6 +18,13 @@ def start_sensors(config, stop_event, publisher):
       sensors.append(
           GSGManager.start_gsg(gsg_config, stop_event, publisher)
       )
+
+    if "DHT3" in config:
+        dht1_config = config["DHT3"]
+        dht1_config["code"] = "DHT3"
+        sensors.append(
+            DHTManager.start_dht(dht1_config, stop_event, publisher)
+        )
     return sensors
 
 
