@@ -62,6 +62,33 @@
     },
 
     "PI2": {
+        "DS2": {
+            "name": "Door sensor",
+            "simulated": true,
+            "topic": "sensors/ds2",
+            "pin": 26,
+            "debounce_ms": 50,
+            "verbose": true,
+            "poll_interval": 0.5,
+            "runs_on": "PI2"
+        },
+        "DUS2": {
+            "name": "Door ultrasonic sensor",
+            "simulated": true,
+            "trig_pin": 4,
+            "echo_pin":  17,
+            "verbose": true,
+            "topic": "sensors/dus2",
+            "runs_on": "PI2"
+        },
+        "DPIR2": {
+            "name": "Door PIR motion sensor",
+            "simulated": true,
+            "topic": "sensors/dpir2",
+            "pin": 16,
+            "verbose": true,
+            "runs_on": "PI2"
+        },
         "GSG": {
             "name": "Gyroscope",
             "simulated": true,

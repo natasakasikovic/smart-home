@@ -8,10 +8,35 @@ from utils.config_loader import load_config
 from components.gsg_manager import GSGManager
 from components.ssd_manager import SSDManager
 from components.dht_manager import DHTManager
+from components.ds_manager import DSManager
+from components.dus_manager import DUSManager
+from components.dpir_manager import DPIRManager
 from controllers.pi2.command_handler import CommandHandler
 
 def start_sensors(config, stop_event, publisher):
     sensors = []
+
+    if "DS2" in config:
+        ds2_config = config["DS2"]
+        ds2_config["code"] = "DS2"
+        sensors.append(
+            DSManager.start_ds(ds2_config, stop_event, publisher)
+        )
+    
+    if "DUS2" in config:
+        dus2_config = config["DUS2"]
+        dus2_config["code"] = "DUS2"
+        sensors.append(
+            DUSManager.start_dus(dus2_config, stop_event, publisher)
+        )
+
+    if "DPIR2" in config:
+        dpir2_config = config["DPIR2"]
+        dpir2_config["code"] = "DPIR2"
+        sensors.append(
+            DPIRManager.start_dpir(dpir2_config, stop_event, publisher)
+        )
+
     if "GSG" in config:
       gsg_config = config["GSG"]
       gsg_config["code"] = "GSG"
@@ -59,6 +84,7 @@ def run():
     cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
 
     cmd_handler = CommandHandler(actuators, threads, stop_event)
+
 
     print("[PI2] System ready. Type 'help' for commands.")
 
