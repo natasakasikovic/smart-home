@@ -1,6 +1,7 @@
 import threading
 import signal
 
+from components.ir_manager import IRManager
 from publisher import Publisher
 from utils.config_loader import load_config
 from components.dpir_manager import DPIRManager
@@ -33,6 +34,13 @@ def start_sensors(config, stop_event, publisher):
         dht2_config["code"] = "DHT2"
         threads.append(
             DHTManager.start_dht(dht2_config, stop_event, publisher)
+        )
+
+    if "IR" in config:
+        ir_config = config["IR"]
+        ir_config["code"] = "IR"
+        threads.append(
+            IRManager.start_ir(ir_config, stop_event, publisher)
         )
     
     return threads

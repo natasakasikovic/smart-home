@@ -137,6 +137,14 @@
             "pin": 4,
             "poll_interval": 2.0,
             "runs_on": "PI3"
+        },
+        "IR": {
+            "name": "Bedroom Infrared",
+            "simulated": true,
+            "topic": "sensors/ir",
+            "pin": 17,
+            "verbose": true,
+            "runs_on": "PI3"
         }
     }
   }
