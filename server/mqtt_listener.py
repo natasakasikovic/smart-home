@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
-from state import state
+from server.state import state
 
 class MQTTListener:
     def __init__(self, broker="localhost", port=1883, socketio=None):

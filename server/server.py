@@ -3,11 +3,11 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-import paho.mqtt.client as mqtt
 import json
 
-from state import state
-from mqtt_listener import MQTTListener
+from server.state import state
+from server.mqtt_listener import MQTTListener
+from system_orchestrator import SystemOrchestrator
 
 app = Flask(__name__)
 CORS(app)
@@ -15,24 +15,14 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 token = "XDGVPvq5PH0WSV3OSUGrk2jmUt1oQnDxNQ6ngYDdRk7rCDxb9LUf4myDETWCZH0xxCeEs43SS09CpGJOZu-quw=="
 org = "FTN"
-url = "http://localhost:8087"
+url = "http://localhost:8086"
 bucket = "example_db"
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
-mqtt_client = mqtt.Client()
-mqtt_client.connect("127.0.0.1", 1883, 60)
-
-def on_connect(client, userdata, flags, rc):
-    client.subscribe("sensors/#")
-    client.subscribe("actuators/#")
-
-mqtt_client.on_connect = on_connect
-mqtt_client.on_message = lambda c, u, msg: save_to_db(msg.topic, json.loads(msg.payload.decode('utf-8')))
-mqtt_client.loop_start()
-
-tags = ["simulated", "runs_on", "name", "verbose", "pin"]
+tags = ["simulated", "runs_on", "name", "verbose", "pin", "code"]
 
 def save_to_db(topic, data):
+    """Save sensor/actuator data to InfluxDB"""
     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
     point = Point(topic)
     
@@ -53,8 +43,18 @@ def save_to_db(topic, data):
 
 
 
-mqtt_listener = MQTTListener(broker="127.0.0.1", port=1883, socketio=socketio)
+mqtt_listener = MQTTListener(broker="127.0.0.1", port=1883, socketio=socketio) # TODO: extract to env
 mqtt_listener.start()
+
+def influx_callback(client, userdata, msg):
+    data = json.loads(msg.payload.decode('utf-8'))
+    save_to_db(msg.topic, data)
+
+mqtt_listener.client.message_callback_add("sensors/#", influx_callback)
+mqtt_listener.client.message_callback_add("actuators/#", influx_callback)
+
+orchestrator = SystemOrchestrator(mqtt_client=mqtt_listener.client, state=state, socketio=socketio)
+orchestrator.register()
 
 
 @app.route('/api/state', methods=['GET'])

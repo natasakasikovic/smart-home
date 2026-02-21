@@ -28,7 +28,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ## Features
 ### Security & Motion Detection
-- [ ] When DPIR1 detects motion, DL1 is turned on for 10 seconds.
+- [x] When DPIR1 detects motion, DL1 is turned on for 10 seconds.
 - [ ] When DPIR1 detects motion, determine whether a person is entering or exiting the building based on the distance measured by DUS1 in the previous few seconds.
 - [ ] Same logic for DPIR2 and DUS2 as written above 
 - [ ] Maintain and update the real-time count of occupants inside the building.
