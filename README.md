@@ -51,3 +51,21 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ### Camera
 - [ ] Display the webcam video on the web application.
+
+## How to run?
+1. Clone the repository
+   - git clone `https://github.com/natasakasikovic/smart-home.git`
+   - cd smart-home
+2. Start Docker services (terminal docker)
+   - cd docker
+   - docker compose up -d
+3. Run Raspberry Pi simulators (in separate terminals)
+   - python main.py PI1
+   - python main.py PI2
+   - python main.py PI3
+4. Start the server (terminal server)
+   - python -m server.server
+5. Start the frontend (terminal frontend)
+   - cd frontend
+   - npm install
+   - npm run dev
