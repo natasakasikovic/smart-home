@@ -14,11 +14,15 @@ class SystemOrchestrator:
         self._lock = threading.Lock()
         
         self._dl_timer = None
-        self._door_alarm_timers = {}
+
+        self._ds_timers = {}
+        self._active_doors = set()
+
     
     def register(self):
         """Registration of all automation rules"""
-        self.mqtt_client.message_callback_add("sensors/dpir1", self._on_dpir1)
+        self.mqtt_client.message_callback_add("sensors/dpir1", self._on_dpir1) # when DPIR1 detects motion
+        self.mqtt_client.message_callback_add("sensors/ds1", self._on_ds) # When DS state changes (on topic sensors/ds1 will )
         # TODO: add all rules    
   
     def _on_dpir1(self, client, userdata, msg):
@@ -32,6 +36,44 @@ class SystemOrchestrator:
             return
         
         self._activate_dl(duration=10)
+
+    def _on_ds(self, client, userdata, msg):
+        """Handle DS sensors on ds1 topik, using runs_on to differentiate"""
+        payload = json.loads(msg.payload.decode())
+        state = payload.get("state", "CLOSED")
+        sensor = payload.get("runs_on")  # PI1 or PI2
+
+        if not sensor:
+            return 
+
+        with self._lock:
+            if state == "OPEN":
+                self._active_doors.add(sensor)
+
+                if sensor in self._ds_timers:
+                    self._ds_timers[sensor].cancel()
+
+                timer = threading.Timer(5, lambda: self._trigger_alarm(sensor))
+                timer.start()
+                self._ds_timers[sensor] = timer
+
+            else:  # CLOSED
+                if sensor in self._ds_timers:
+                    self._ds_timers[sensor].cancel()
+                    del self._ds_timers[sensor]
+
+                self._active_doors.discard(sensor)
+
+                if not self._active_doors and self.state.alarm_active:
+                    self.state.set_security(False)
+                    self.state.set_alarm(False)
+
+    def _trigger_alarm(self, sensor):
+        with self._lock:
+            if sensor in self._active_doors:
+                print(f"Alarm ON")
+                self.state.set_security(True)
+                self.state.set_alarm(True)
     
     def _activate_dl(self, duration=10):
         """Turn DL on, then off after duration seconds"""

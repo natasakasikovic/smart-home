@@ -32,7 +32,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 - [ ] When DPIR1 detects motion, determine whether a person is entering or exiting the building based on the distance measured by DUS1 in the previous few seconds.
 - [ ] Same logic for DPIR2 and DUS2 as written above 
 - [ ] Maintain and update the real-time count of occupants inside the building.
-- [ ] If a signal from DS1 or DS2 is detected for more than 5 seconds, activate the ALARM until the DS state changes. This simulates an unlocked door.
+- [x] If a signal from DS1 or DS2 is detected for more than 5 seconds, activate the ALARM until the DS state changes. This simulates an unlocked door.
 - [ ] Enable activation of the security alarm via the DMS component.
 - [ ] When a 4-digit PIN code is entered, the system activates after 10 seconds.
 - [ ] If the system is active, trigger the ALARM when a signal is detected on DS1 or DS2, unless the correct PIN is entered via the DMS component.
