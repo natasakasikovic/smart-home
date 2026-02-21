@@ -1,8 +1,7 @@
 import React from 'react';
 
 export default function WebcamPanel() {
-  // change this to your webcam stream URL (not sure about this)
-  const WEBCAM_URL = 'http://192.168.1.100:8080/?action=stream';
+  const WEBCAM_URL = 'http://192.168.107.144:8080/?action=stream';
   
   return (
     <div className="mt-8">
