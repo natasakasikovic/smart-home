@@ -27,6 +27,7 @@ class SystemOrchestrator:
         self.mqtt_client.message_callback_add("sensors/ds1", self._on_ds)
         self.mqtt_client.message_callback_add("sensors/gsg", self._on_gsg) 
         self.mqtt_client.message_callback_add("sensors/dus",self._on_dus)
+        self.mqtt_client.message_callback_add("sensors/dms", self._on_dms)
         # TODO: add all rules    
 
   
@@ -60,8 +61,10 @@ class SystemOrchestrator:
             elif direction == "exit" and person_count > 0:
                 person_count -= 1
                 print(f"Somebody exited from smart home. Person count: {person_count}")
-
+    
             self.state.set_person_count(person_count)
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
 
 
     def _on_dus(self, client, userdata, msg):
@@ -121,6 +124,30 @@ class SystemOrchestrator:
                     print(f"[DS] All doors closed and alarm was active - DEACTIVATING ALARM")
                     self.state.set_security(False)
                     self.state.set_alarm(False)
+                    self._publish_command("db", "off")
+                    if self.socketio:
+                        self.socketio.emit('state', self.state.get_all())
+
+    def _on_dms(self, client, userdata, msg):
+        """DMS listens for PIN code entries. If the correct PIN is entered while the alarm is active, it disarms the system."""
+        
+        payload = json.loads(msg.payload.decode())
+        pin = payload.get("pin")
+        
+        if pin is None:
+            return
+        
+        with self._lock:
+            if self.state.check_pin(str(pin)):
+                if self.state.alarm_active or self.state.security_armed:
+                    print("[DMS] Correct PIN -> DISARM")
+                    self.state.set_security(False)
+                    self.state.set_alarm(False)
+                    self._publish_command("db", "off")
+                    if self.socketio:
+                        self.socketio.emit('state', self.state.get_all())
+            else:
+                print("[DMS] Wrong pin")
 
     def _check_and_trigger(self, runs_on):
         with self._lock:
@@ -135,6 +162,9 @@ class SystemOrchestrator:
             print(f"Alarm ON")
             self.state.set_security(True)
             self.state.set_alarm(True)
+            self._publish_command("db", "on")
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
     
     def _activate_dl(self, duration=10):
         """Turn DL on, then off after duration seconds"""
