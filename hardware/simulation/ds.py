@@ -33,7 +33,7 @@ class DS(DSInterface):
         """
         if random.random() < 0.1:
             self.is_open = not getattr(self, "is_open", False)
-
+            
             if self.is_open:
                 self.log("DOOR OPENED (simulated)")
             else:

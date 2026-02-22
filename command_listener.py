@@ -71,14 +71,12 @@ def on_message(client, userdata, msg):
     payload = json.loads(msg.payload.decode('utf-8'))
     action = payload.get('action')
     params = payload.get('params', {})
-    
     code = topic.split('/')[-1].upper()
-    
     if code not in _actuators:
         return
     
     actuator = _actuators[code]
-    print(f"[CMD] {code}: {action} {params}")
+    print(f"[CMD] {code}: action - {action}")
     
     execute_action(actuator, code, action, params)
 
