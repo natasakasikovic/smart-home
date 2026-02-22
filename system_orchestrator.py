@@ -12,7 +12,7 @@ class SystemOrchestrator:
         self.mqtt_client = mqtt_client
         self.state = state
         self.socketio = socketio
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         
         self._dl_timer = None
 
@@ -46,20 +46,22 @@ class SystemOrchestrator:
         if direction is None:
             return
 
-        person_count = self.state.person_count
+        with self._lock:
 
-        if person_count == 0:
-            print("Zero people inside smart home + motion detected -> ALARM ON")
-            self._trigger_alarm()
+            person_count = self.state.person_count
 
-        if direction == "enter":
-            person_count += 1
-            print(f"Somebody entered in smart home. Person count: {person_count}")
-        elif direction == "exit" and person_count > 0:
-            person_count -= 1
-            print(f"Somebody exited from smart home. Person count: {person_count}")
+            if person_count == 0:
+                print("Zero people inside smart home + motion detected -> ALARM ON")
+                self._trigger_alarm()
 
-        self.state.set_person_count(person_count)
+            if direction == "enter":
+                person_count += 1
+                print(f"Somebody entered in smart home. Person count: {person_count}")
+            elif direction == "exit" and person_count > 0:
+                person_count -= 1
+                print(f"Somebody exited from smart home. Person count: {person_count}")
+
+            self.state.set_person_count(person_count)
 
 
     def _on_dus(self, client, userdata, msg):
@@ -79,6 +81,7 @@ class SystemOrchestrator:
 
     def _on_gsg(self, client, userdata, msg):
         """When gyroscope detects significant change, turn on alarm"""
+        print("Gyroscope detected significant change -> Alarm ON")
         self._trigger_alarm() # TODO: think about moving logic about significant change here
 
     def _on_ds(self, client, userdata, msg):
@@ -133,7 +136,7 @@ class SystemOrchestrator:
         
         self._publish_command("dl", "on")
         
-        timer = threading.Timer(duration, self._publish_command("dl", "off")) # turn off dl
+        timer = threading.Timer(duration, lambda: self._publish_command("dl", "off")) # turn off dl
         timer.daemon = True
         timer.start()
         
