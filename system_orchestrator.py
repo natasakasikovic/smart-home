@@ -82,7 +82,7 @@ class SystemOrchestrator:
     def _on_gsg(self, client, userdata, msg):
         """When gyroscope detects significant change, turn on alarm"""
         print("Gyroscope detected significant change -> Alarm ON")
-        self._trigger_alarm() # TODO: think about moving logic about significant change here
+        self._trigger_alarm()
 
     def _on_ds(self, client, userdata, msg):
         """Handle DS sensors on ds1 topic, using runs_on to differentiate"""
@@ -97,29 +97,38 @@ class SystemOrchestrator:
         with self._lock:
             if state == "OPEN":
                 self._open_doors.add(runs_on)
+                print(f"[DS] '{runs_on}' is OPEN - starting 5s timer. Open doors: {self._open_doors}")
 
                 if runs_on in self._ds_timers:
                     self._ds_timers[runs_on].cancel()
+                    print(f"[DS] '{runs_on}' existing timer cancelled and restarted")
 
                 timer = threading.Timer(5, lambda: self._check_and_trigger(runs_on))
                 timer.start()
                 self._ds_timers[runs_on] = timer
 
             else:
+                print(f"[DS] '{runs_on}' is CLOSED")
+
                 if runs_on in self._ds_timers:
                     self._ds_timers[runs_on].cancel()
                     del self._ds_timers[runs_on]
+                    print(f"[DS] '{runs_on}' timer cancelled - door closed before 5s, alarm will not trigger")
 
                 self._open_doors.discard(runs_on)
 
                 if not self._open_doors and self.state.alarm_active:
+                    print(f"[DS] All doors closed and alarm was active - DEACTIVATING ALARM")
                     self.state.set_security(False)
                     self.state.set_alarm(False)
 
     def _check_and_trigger(self, runs_on):
         with self._lock:
             if runs_on in self._open_doors:
+                print(f"[DS] WARNING - '{runs_on}' has been open for more than 5s - TRIGGERING ALARM")
                 self._trigger_alarm()
+            else:
+                print(f"[DS] '{runs_on}' timer expired but door already closed - alarm not triggered")
 
     def _trigger_alarm(self):
         with self._lock:
