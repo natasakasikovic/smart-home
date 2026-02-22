@@ -17,12 +17,6 @@ class DB(DBInterface):
 
         self.default_on_duration = self.config.get("on_duration", 0.3)
 
-        if GPIO is None:
-            raise RuntimeError("RPi.GPIO nije dostupan. Pokreni na Raspberry Pi.")
-
-        if self.pin is None:
-            raise ValueError("Door Buzzer config nema 'pin'!")
-
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin, GPIO.OUT)
         GPIO.output(self.pin, GPIO.LOW)

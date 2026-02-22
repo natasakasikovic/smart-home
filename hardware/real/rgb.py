@@ -27,6 +27,7 @@ class RGB(RGBInterface):
         GPIO.output(self.pin_blue, GPIO.LOW)
 
         self.log(f"Initializing REAL RGB LED on pins R:{self.pin_red}, G:{self.pin_green}, B:{self.pin_blue}")
+        self.callback(self.config, self.current_color)
 
     def set_color(self, red: bool, green: bool, blue: bool):
         GPIO.output(self.pin_red, GPIO.HIGH if red else GPIO.LOW)

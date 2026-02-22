@@ -13,6 +13,7 @@ class RGB(RGBInterface):
                 self.config.get("pin_blue", "N/A")
             )
         )
+        self.callback(self.config, self.current_color)
 
     def set_color(self, red: bool, green: bool, blue: bool):
         color_name = self._get_color_name(red, green, blue)
