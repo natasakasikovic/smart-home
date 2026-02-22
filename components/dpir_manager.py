@@ -26,7 +26,7 @@ class DPIRManager():
                 "runs_on": cfg.get("runs_on", "unknown")
             }
             
-            topic = cfg.get("topic", "sensors/dpir1")
+            topic = cfg.get("topic", "sensors/dpir")
             publisher.add_measurement(topic, payload)
 
         dpir = DPIRManager.create_dpir(config, stop_event, dpir_callback)

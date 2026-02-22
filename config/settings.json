@@ -8,7 +8,7 @@
         "DPIR1": {
             "name": "Door PIR motion sensor",
             "simulated": true,
-            "topic": "sensors/dpir1",
+            "topic": "sensors/dpir",
             "pin": 16,
             "verbose": true,
             "runs_on": "PI1"
@@ -56,7 +56,7 @@
             "trig_pin": 4,
             "echo_pin":  17,
             "verbose": true,
-            "topic": "sensors/dus1",
+            "topic": "sensors/dus",
             "runs_on": "PI1"
         }
     },
@@ -78,13 +78,13 @@
             "trig_pin": 4,
             "echo_pin":  17,
             "verbose": true,
-            "topic": "sensors/dus2",
+            "topic": "sensors/dus",
             "runs_on": "PI2"
         },
         "DPIR2": {
             "name": "Door PIR motion sensor",
             "simulated": true,
-            "topic": "sensors/dpir2",
+            "topic": "sensors/dpir",
             "pin": 16,
             "verbose": true,
             "runs_on": "PI2"
