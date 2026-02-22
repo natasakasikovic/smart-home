@@ -17,7 +17,7 @@ class SystemOrchestrator:
         self._dl_timer = None
 
         self._ds_timers = {}
-        self._active_doors = set()
+        self._open_doors = set()
 
         self.dus_history = defaultdict(lambda: deque(maxlen=20))
     
@@ -33,19 +33,31 @@ class SystemOrchestrator:
     def _on_dpir(self, client, userdata, msg):
         """When DPIR1 detects motion, turn DL on for 10 seconds.
            When DPIR1 or DPIR2 detect motion, determine wheather person is entering or exiting.
+           If the number of people inside the building is zero, detecting motion on any of the DPIR1–3 sensors triggers the alarm.
            """
         payload = json.loads(msg.payload.decode())
         runs_on = payload.get("runs_on")
 
         if runs_on == "PI1":
             self._activate_dl(duration=10)
+        
+        direction = self._detect_direction(runs_on)
+
+        if direction is None:
+            return
 
         person_count = self.state.person_count
 
-        if self._is_entering(runs_on):
+        if person_count == 0:
+            print("Zero people inside smart home + motion detected -> ALARM ON")
+            self._trigger_alarm()
+
+        if direction == "enter":
             person_count += 1
-        else:
+            print(f"Somebody entered in smart home. Person count: {person_count}")
+        elif direction == "exit" and person_count > 0:
             person_count -= 1
+            print(f"Somebody exited from smart home. Person count: {person_count}")
 
         self.state.set_person_count(person_count)
 
@@ -54,7 +66,7 @@ class SystemOrchestrator:
         """ HELPER -> Processes DUS messages and stores recent distance data per device for enter/exit detection."""
         payload = json.loads(msg.payload.decode())
 
-        distance = payload.get("distance_cm")
+        distance = payload.get("distance")
         runs_on = payload.get("runs_on")
 
         if distance is None or runs_on is None:
@@ -67,45 +79,50 @@ class SystemOrchestrator:
 
     def _on_gsg(self, client, userdata, msg):
         """When gyroscope detects significant change, turn on alarm"""
-        self._trigger_alarm(True) # TODO: think about moving logic about significant change here
+        self._trigger_alarm() # TODO: think about moving logic about significant change here
 
     def _on_ds(self, client, userdata, msg):
-        """Handle DS sensors on ds1 topik, using runs_on to differentiate"""
+        """Handle DS sensors on ds1 topic, using runs_on to differentiate"""
+        
         payload = json.loads(msg.payload.decode())
         state = payload.get("state", "CLOSED")
-        sensor = payload.get("runs_on")  # PI1 or PI2
+        runs_on = payload.get("runs_on")
 
-        if not sensor:
-            return 
+        if not runs_on:
+            return
 
         with self._lock:
             if state == "OPEN":
-                self._active_doors.add(sensor)
+                self._open_doors.add(runs_on)
 
-                if sensor in self._ds_timers:
-                    self._ds_timers[sensor].cancel()
+                if runs_on in self._ds_timers:
+                    self._ds_timers[runs_on].cancel()
 
-                timer = threading.Timer(5, lambda: self._trigger_alarm(sensor))
+                timer = threading.Timer(5, lambda: self._check_and_trigger(runs_on))
                 timer.start()
-                self._ds_timers[sensor] = timer
+                self._ds_timers[runs_on] = timer
 
-            else:  # CLOSED
-                if sensor in self._ds_timers:
-                    self._ds_timers[sensor].cancel()
-                    del self._ds_timers[sensor]
+            else:
+                if runs_on in self._ds_timers:
+                    self._ds_timers[runs_on].cancel()
+                    del self._ds_timers[runs_on]
 
-                self._active_doors.discard(sensor)
+                self._open_doors.discard(runs_on)
 
-                if not self._active_doors and self.state.alarm_active:
+                if not self._open_doors and self.state.alarm_active:
                     self.state.set_security(False)
                     self.state.set_alarm(False)
 
-    def _trigger_alarm(self, sensor):
+    def _check_and_trigger(self, runs_on):
         with self._lock:
-            if sensor in self._active_doors:
-                print(f"Alarm ON")
-                self.state.set_security(True)
-                self.state.set_alarm(True)
+            if runs_on in self._open_doors:
+                self._trigger_alarm()
+
+    def _trigger_alarm(self):
+        with self._lock:
+            print(f"Alarm ON")
+            self.state.set_security(True)
+            self.state.set_alarm(True)
     
     def _activate_dl(self, duration=10):
         """Turn DL on, then off after duration seconds"""
@@ -116,22 +133,13 @@ class SystemOrchestrator:
         
         self._publish_command("dl", "on")
         
-        timer = threading.Timer(duration, self._deactivate_dl)
+        timer = threading.Timer(duration, self._publish_command("dl", "off")) # turn off dl
         timer.daemon = True
         timer.start()
         
         with self._lock:
             self._dl_timer = timer
     
-    def _deactivate_dl(self):
-        """Turn DL off"""
-        self._publish_command("dl", "off")
-
-    
-    def _is_entering(self, runs_on: str, window_seconds: float = 3.0) -> bool:
-        """ Returns True if movement trend indicates someone is entering."""
-        return self._detect_direction(runs_on, window_seconds) == "enter"
-
     def _detect_direction(self, runs_on: str, window_seconds: float = 3.0):
         """ Determines movement direction (enter/exit) based on DUS distance history.
             Returns: "enter", "exit", or None if unclear

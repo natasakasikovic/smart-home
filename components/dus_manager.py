@@ -31,7 +31,7 @@ class DUSManager():
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "DUS",
-                "distance_cm": distance,
+                "distance": distance,
                 "simulated": cfg.get("simulated", True),
                 "runs_on": cfg.get("runs_on", "unknown")
             }
