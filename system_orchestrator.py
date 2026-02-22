@@ -21,9 +21,11 @@ class SystemOrchestrator:
     
     def register(self):
         """Registration of all automation rules"""
-        self.mqtt_client.message_callback_add("sensors/dpir1", self._on_dpir1) # when DPIR1 detects motion
-        self.mqtt_client.message_callback_add("sensors/ds1", self._on_ds) # When DS state changes (on topic sensors/ds1 will )
+        self.mqtt_client.message_callback_add("sensors/dpir1", self._on_dpir1) 
+        self.mqtt_client.message_callback_add("sensors/ds1", self._on_ds)
+        self.mqtt_client.message_callback_add("sensors/gsg", self._on_gsg) 
         # TODO: add all rules    
+
   
     def _on_dpir1(self, client, userdata, msg):
         """When DPIR1 detects motion, turn DL on for 10 seconds"""
@@ -36,6 +38,11 @@ class SystemOrchestrator:
             return
         
         self._activate_dl(duration=10)
+
+
+    def _on_gsg(self, client, userdata, msg):
+        "When gyroscope detects significant change, turn on alarm"
+        self._trigger_alarm(True) # TODO: think about moving logic about significant change here
 
     def _on_ds(self, client, userdata, msg):
         """Handle DS sensors on ds1 topik, using runs_on to differentiate"""

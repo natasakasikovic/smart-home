@@ -38,7 +38,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 - [ ] If the system is active, trigger the ALARM when a signal is detected on DS1 or DS2, unless the correct PIN is entered via the DMS component.
 - [ ] Entering the PIN deactivates the ALARM and disarms the system.
 - [ ] If the number of people inside the building (as per point 2) is zero, trigger the ALARM when motion is detected by any of the RPIR1-3 sensors.
-- [ ] If the GSG (attached to the Slava icon) detects significant movement, trigger the ALARM.
+- [x] If the GSG (attached to the Slava icon) detects significant movement, trigger the ALARM.
 ### Environmental Monitoring
 - [ ] Display the temperature and humidity from DHT1-3 on the LCD, cycling through the readings from each DHT sensor every few seconds.
 ### Kitchen Timer
