@@ -100,7 +100,8 @@
             "DHT3": {
             "name": "Kitchen DHT",
             "simulated": true,
-            "topic": "sensors/dht/kitchen",
+            "code": "DHT3",
+            "topic": "sensors/dht",
             "verbose": true,
             "pin": 4,
             "poll_interval": 2.0,
@@ -150,7 +151,8 @@
         "DHT1": {
             "name": "Bedroom DHT",
             "simulated": true,
-            "topic": "sensors/dht/beedroom",
+            "code": "DHT1",
+            "topic": "sensors/dht",
             "verbose": true,
             "pin": 4,
             "poll_interval": 2.0,
@@ -159,7 +161,8 @@
         "DHT2": {
             "name": "Master Bedroom DHT",
             "simulated": true,
-            "topic": "sensors/dht/master-beedroom",
+            "code": "DHT2",
+            "topic": "sensors/dht",
             "verbose": true,
             "pin": 4,
             "poll_interval": 2.0,
