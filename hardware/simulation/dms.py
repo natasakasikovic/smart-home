@@ -3,15 +3,16 @@ import time
 import threading
 from ..base.dms_interface import DMSInterface
 
-choices = [1,2,3,4,5,6,7,8,9,10, 'A', 'B', 'C', 'D', '*', '#', '0']
+DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
 
 def loop(dms):
     dms.log("DMS simulation started")
     while not dms.should_stop():
-        press_change = dms.detect_press_change()
+        pin = dms.detect_press_change()
 
-        if press_change is not None:
-            dms.callback(press_change, dms.config)
+        if pin is not None:
+            dms.callback(pin, dms.config)
 
         time.sleep(dms.config.get('poll_interval', 0.5))
 
@@ -21,6 +22,7 @@ def loop(dms):
 class DMS(DMSInterface):
     def __init__(self, config, stop_event, callback):
         super().__init__(config, stop_event, callback)
+        self.pin_length = config.get("pin_length", 4)
         self.log(
             "Initializing DMS (Door Membrane Switch) simulated on pin {}".format(
                 self.config.get('pin', 'N/A')
@@ -29,12 +31,11 @@ class DMS(DMSInterface):
 
     def detect_press_change(self):
         if random.random() < 0.08:
-            key = random.choice(choices)
-            self.log(f"Simulated key press: {key}")
-            return key
+            pin = ''.join(random.choices(DIGITS, k=self.pin_length))
+            self.log(f"Simulated PIN entry: {pin}")
+            return pin
 
         return None
-
 
     def start(self):
         thread = threading.Thread(
