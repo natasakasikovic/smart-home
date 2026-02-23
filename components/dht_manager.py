@@ -23,6 +23,7 @@ class DHTManager:
             payload = {
                 "name": config.get("name", "unknown"),
                 "type": "dht",
+                "code": config.get("code"),
                 "temperature": data.get("temperature"),
                 "humidity": data.get("humidity"),
                 "simulated": config.get("simulated", True),

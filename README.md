@@ -43,7 +43,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ### Environmental Monitoring
 
-- [ ] Display the temperature and humidity from DHT1-3 on the LCD, cycling through the readings from each DHT sensor every few seconds.
+- [x] Display the temperature and humidity from DHT1-3 on the LCD, cycling through the readings from each DHT sensor every few seconds.
 
 ### Kitchen Timer
 
@@ -58,7 +58,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ### Camera
 
-- [ ] Display the webcam video on the web application.
+- [x] Display the webcam video on the web application.
 
 ## How to run?
 

@@ -22,7 +22,15 @@ class SystemOrchestrator:
         self._arm_timer = None
 
         self.dus_history = defaultdict(lambda: deque(maxlen=20))
-    
+
+        self._lcd_index = 0
+        self._lcd_interval = 2
+        self._lcd_thread = None
+        self._dht_values = {} 
+        self._lcd_sensors = ["DHT1", "DHT2", "DHT3"] 
+        for sensor in self._lcd_sensors:
+            self._dht_values[sensor] = {"temperature": None, "humidity": None}  
+     
     def register(self):
         """Registration of all automation rules"""
         self.mqtt_client.message_callback_add("sensors/dpir", self._on_dpir) 
@@ -30,6 +38,9 @@ class SystemOrchestrator:
         self.mqtt_client.message_callback_add("sensors/gsg", self._on_gsg) 
         self.mqtt_client.message_callback_add("sensors/dus", self._on_dus)
         self.mqtt_client.message_callback_add("sensors/dms", self._on_dms)
+        self.mqtt_client.message_callback_add("sensors/dht", self._on_dht)
+        
+        self._start_lcd_cycle()
         # TODO: add all rules    
 
     def start_arming(self):
@@ -104,6 +115,22 @@ class SystemOrchestrator:
             "distance": distance,
             "time": time.time()
         })
+
+    def _on_dht(self, client, userdata, msg):
+        """ Saves newest temperature and humidity for each pi"""
+        
+        payload = json.loads(msg.payload.decode())
+        code = payload.get("code")
+        
+        if not code:
+            return
+
+        with self._lock:
+            if code not in self._dht_values:
+                self._dht_values[code] = {"temperature": None, "humidity": None}
+
+            self._dht_values[code]["temperature"] = payload.get("temperature")
+            self._dht_values[code]["humidity"] = payload.get("humidity")
 
     def _on_gsg(self, client, userdata, msg):
         """When gyroscope detects significant change, turn on alarm"""
@@ -217,6 +244,28 @@ class SystemOrchestrator:
             self._publish_command("db", "on")
             if self.socketio:
                 self.socketio.emit('state', self.state.get_all())
+
+
+    def _start_lcd_cycle(self):
+        def lcd_cycle():
+            while True:
+                with self._lock:
+                    sensor = self._lcd_sensors[self._lcd_index % len(self._lcd_sensors)]
+                    data = self._dht_values.get(sensor)
+
+                    temperature = data["temperature"]
+                    humidity = data["humidity"]
+
+                self._publish_command("lcd", "display_both", {
+                    "line0": f"{sensor} Temp: {temperature}",
+                    "line1": f"{sensor} Hum: {humidity}"
+                })
+
+                self._lcd_index += 1
+                time.sleep(self._lcd_interval)
+
+        self._lcd_thread = threading.Thread(target=lcd_cycle, daemon=True)
+        self._lcd_thread.start()
     
     def _activate_dl(self, duration=10):
         """Turn DL on, then off after duration seconds"""

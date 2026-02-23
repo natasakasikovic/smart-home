@@ -42,6 +42,8 @@ def execute_action(actuator, code, action, params):
     elif code == "LCD":
         if action == "display_text":
             actuator.display_text(params.get('text', ''), params.get('line', 0))
+        elif action == "display_both":
+            actuator.display_both(params.get('line0', ''), params.get('line1', ''))
         elif action == "clear":
             actuator.clear()
         elif action == "backlight":
