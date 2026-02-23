@@ -11,6 +11,7 @@ export const useSmartHome = () => {
     person_count: 0,
   });
   const [connected, setConnected] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     getState()
@@ -18,6 +19,7 @@ export const useSmartHome = () => {
       .catch(err => console.error('Failed to fetch state:', err));
 
     const socket = io('http://localhost:5000');
+    setSocket(socket);
 
     socket.on('connect', () => {
       console.log('✅ WebSocket connected');
@@ -40,5 +42,5 @@ export const useSmartHome = () => {
     return () => socket.disconnect();
   }, []);
 
-  return { state, connected };
+  return { state, connected, socket };
 };

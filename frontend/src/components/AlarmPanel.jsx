@@ -85,7 +85,17 @@ export default function AlarmPanel({ state, socket }) {
 
       {isArming && (
         <div className="mb-4 p-3 bg-yellow-900 rounded text-yellow-200 text-sm">
-          System is arming in {countdown} seconds. Enter PIN to cancel.
+          <div className="flex justify-between mb-2">
+            <span>⏳ System arming...</span>
+            <span className="font-bold">{countdown}s</span>
+          </div>
+          <div className="w-full bg-yellow-800 rounded-full h-2">
+            <div
+              className="bg-yellow-400 h-2 rounded-full transition-all duration-1000"
+              style={{ width: `${(countdown / 10) * 100}%` }}
+            />
+          </div>
+          <div className="mt-2 text-xs text-yellow-300">Enter PIN to cancel arming</div>
         </div>
       )}
 
