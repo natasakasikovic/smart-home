@@ -10,7 +10,7 @@ import AlarmNotification from './AlarmNotification';
 import PersonCounter from './PersonCounter';
 
 export default function Dashboard() {
-  const { state, connected } = useSmartHome();
+  const { state, connected, socket } = useSmartHome();
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
@@ -40,7 +40,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AlarmPanel state={state} />
+      <AlarmPanel state={state} socket={socket} />
 
       <Actuators actuators={state.actuators} />
       

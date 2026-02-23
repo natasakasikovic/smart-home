@@ -23,29 +23,6 @@ export default function Actuators({ actuators }) {
       <h2 className="text-2xl font-bold mb-4">🎛️ Actuators</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         
-        {/* Buzzer */}
-        {actuators.DB && (
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">🔊 Door Buzzer</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleControl('DB', 'on')}
-                className="flex-1 bg-green-600 hover:bg-green-700 px-4 py-2 rounded disabled:opacity-50"
-                disabled={loading.DB}
-              >
-                ON
-              </button>
-              <button
-                onClick={() => handleControl('DB', 'off')}
-                className="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded disabled:opacity-50"
-                disabled={loading.DB}
-              >
-                OFF
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Door Light */}
         {actuators.DL && (
           <div className="bg-gray-800 p-6 rounded-lg">

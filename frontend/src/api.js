@@ -14,8 +14,10 @@ export const getState = () => api.get('/state');
 export const controlActuator = (code, action, params = {}) => 
   api.post(`/actuator/${code}`, { action, params });
 
-export const armAlarm = () => api.post('/alarm/arm');
+export const armAlarm = (pin) => api.post('/alarm/arm', { pin }, {
+  headers: { 'Content-Type': 'application/json' }
+});
 export const disarmAlarm = (pin) => api.post('/alarm/disarm', { pin });
 
-export const updatePersonCount = (action, value = 1) => 
+export const updatePersonCount = (action, value = 0) => 
   api.post('/person_count', { action, value });

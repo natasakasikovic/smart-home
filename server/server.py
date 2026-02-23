@@ -1,3 +1,5 @@
+import threading
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -49,6 +51,14 @@ mqtt_listener.start()
 def influx_callback(client, userdata, msg):
     data = json.loads(msg.payload.decode('utf-8'))
     save_to_db(msg.topic, data)
+    parts = msg.topic.split("/")
+
+    if parts[0] == "sensors" and len(parts) > 1:
+        code = parts[-1].upper()
+        state.update_sensor(code, data.copy())
+    elif parts[0] == "actuators" and len(parts) > 1:
+        code = parts[-1].upper()
+        state.update_actuator(code, data.copy())
 
 mqtt_listener.client.message_callback_add("sensors/#", influx_callback)
 mqtt_listener.client.message_callback_add("actuators/#", influx_callback)
@@ -85,11 +95,15 @@ def control_actuator(code):
 
 @app.route('/api/alarm/arm', methods=['POST'])
 def arm_alarm():
-    state.set_security(True)
-    state.set_alarm(True)
-    socketio.emit('alarm', {'armed': True})
-    return jsonify({"status": "armed"})
-
+    data = request.json
+    pin = data.get('pin')
+    
+    if not state.check_pin(pin):
+        return jsonify({"error": "Wrong PIN"}), 401
+    
+    orchestrator.start_arming()
+    
+    return jsonify({"status": "arming", "delay": 10})
 
 @app.route('/api/alarm/disarm', methods=['POST'])
 def disarm_alarm():
@@ -97,9 +111,7 @@ def disarm_alarm():
     pin = data.get('pin')
     
     if state.check_pin(pin):
-        state.set_security(False)
-        state.set_alarm(False)
-        socketio.emit('alarm', {'armed': False, 'active': False})
+        orchestrator.disarm()
         return jsonify({"status": "ok"})
     else:
         return jsonify({"error": "Wrong PIN"}), 401
@@ -114,12 +126,11 @@ def update_person_count():
     if action == 'set':
         state.set_person_count(value)
     
-    socketio.emit('person_count', {'count': state.person_count})
+    socketio.emit('state', state.get_all())
     
     return jsonify({"status": "ok", "person_count": state.person_count})
 
 
-# WebSocket
 @socketio.on('connect')
 def handle_connect():
     print("[WS] Client connected")

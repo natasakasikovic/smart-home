@@ -15,12 +15,29 @@ KEYPAD = [
     ["*", "0", "#", "D"]
 ]
 
+
 def loop(dms):
     dms.log("Real DMS loop started")
     while not dms.should_stop():
         key = dms.detect_press_change()
         if key is not None:
-            dms.callback(key, dms.config)
+            if key == "#":
+                if dms.pin_buffer:
+                    dms.log(f"PIN entered, length: {len(dms.pin_buffer)}")
+                    dms.callback(dms.pin_buffer, dms.config)
+                    dms.pin_buffer = ""
+            elif key == "*":
+                dms.pin_buffer = ""
+                dms.log("PIN cleared")
+            else:
+                dms.pin_buffer += key
+                dms.log(f"PIN buffer: {'*' * len(dms.pin_buffer)}")
+
+                if len(dms.pin_buffer) >= dms.pin_length:
+                    dms.log(f"PIN entered, length: {len(dms.pin_buffer)}")
+                    dms.callback(dms.pin_buffer, dms.config)
+                    dms.pin_buffer = ""
+
         time.sleep(0.1)
     dms.log("Real DMS loop stopped")
 
@@ -31,6 +48,8 @@ class DMS(DMSInterface):
 
         self.rows = config["rows"]   # [25, 8, 7, 1]
         self.cols = config["cols"]   # [12, 16, 20, 21]
+        self.pin_buffer = ""
+        self.pin_length = config.get("pin_length", 4)
 
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)

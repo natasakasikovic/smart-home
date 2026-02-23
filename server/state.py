@@ -8,7 +8,7 @@ class State:
         self.alarm_active = False
         self.security_armed = False
         self.pin_code = "1234"
-        self.person_count = 0
+        self.person_count = 10
         
         self.sensors = {}
         self.actuators = {}

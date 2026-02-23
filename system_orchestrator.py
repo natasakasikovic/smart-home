@@ -19,6 +19,9 @@ class SystemOrchestrator:
         self._ds_timers = {}
         self._open_doors = set()
 
+        self._arm_timer = None
+        self._grace_timer = None
+
         self.dus_history = defaultdict(lambda: deque(maxlen=20))
 
         self._lcd_index = 0
@@ -34,13 +37,38 @@ class SystemOrchestrator:
         self.mqtt_client.message_callback_add("sensors/dpir", self._on_dpir) 
         self.mqtt_client.message_callback_add("sensors/ds1", self._on_ds)
         self.mqtt_client.message_callback_add("sensors/gsg", self._on_gsg) 
-        self.mqtt_client.message_callback_add("sensors/dus",self._on_dus)
+        self.mqtt_client.message_callback_add("sensors/dus", self._on_dus)
+        self.mqtt_client.message_callback_add("sensors/dms", self._on_dms)
         self.mqtt_client.message_callback_add("sensors/dht", self._on_dht)
         
         self._start_lcd_cycle()
-        # TODO: add all rules    
 
-  
+    def start_arming(self):
+        """Called from web app to arm the system via UI (same as DMS PIN entry)"""
+        with self._lock:
+            if self._arm_timer:
+                self._arm_timer.cancel()
+            self._arm_timer = threading.Timer(10, self._arm_system)
+            self._arm_timer.daemon = True
+            self._arm_timer.start()
+            if self.socketio:
+                self.socketio.emit('arming', {'countdown': 10})
+
+    def disarm(self):
+        """Called from web app to disarm"""
+        with self._lock:
+            if self._grace_timer:
+                self._grace_timer.cancel()
+                self._grace_timer = None
+            if self._arm_timer:
+                self._arm_timer.cancel()
+                self._arm_timer = None
+            self.state.set_security(False)
+            self.state.set_alarm(False)
+            self._publish_command("db", "off")
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
+
     def _on_dpir(self, client, userdata, msg):
         """When DPIR1 detects motion, turn DL on for 10 seconds.
            When DPIR1 or DPIR2 detect motion, determine wheather person is entering or exiting.
@@ -71,9 +99,10 @@ class SystemOrchestrator:
             elif direction == "exit" and person_count > 0:
                 person_count -= 1
                 print(f"Somebody exited from smart home. Person count: {person_count}")
-
+    
             self.state.set_person_count(person_count)
-
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
 
     def _on_dus(self, client, userdata, msg):
         """ HELPER -> Processes DUS messages and stores recent distance data per device for enter/exit detection."""
@@ -112,7 +141,7 @@ class SystemOrchestrator:
         self._trigger_alarm()
 
     def _on_ds(self, client, userdata, msg):
-        """Handle DS sensors on ds1 topic, using runs_on to differentiate"""
+        """Handle DS sensors, using runs_on to differentiate between DS1 and DS2"""
         
         payload = json.loads(msg.payload.decode())
         state = payload.get("state", "CLOSED")
@@ -124,15 +153,26 @@ class SystemOrchestrator:
         with self._lock:
             if state == "OPEN":
                 self._open_doors.add(runs_on)
-                print(f"[DS] '{runs_on}' is OPEN - starting 5s timer. Open doors: {self._open_doors}")
 
-                if runs_on in self._ds_timers:
-                    self._ds_timers[runs_on].cancel()
-                    print(f"[DS] '{runs_on}' existing timer cancelled and restarted")
+                if self.state.security_armed and not self.state.alarm_active:
+                    # 4b - system is armed, give 3s for PIN entry before triggering alarm
+                    print(f"[DS] '{runs_on}' is OPEN + system ARMED -> waiting 3s for PIN")
+                    if self._grace_timer:
+                        self._grace_timer.cancel()
+                    self._grace_timer = threading.Timer(3, self._grace_period_expired)
+                    self._grace_timer.daemon = True
+                    self._grace_timer.start()
+                else:
+                    # 3 - door open for more than 5s triggers alarm
+                    print(f"[DS] '{runs_on}' is OPEN - starting 5s timer. Open doors: {self._open_doors}")
 
-                timer = threading.Timer(5, lambda: self._check_and_trigger(runs_on))
-                timer.start()
-                self._ds_timers[runs_on] = timer
+                    if runs_on in self._ds_timers:
+                        self._ds_timers[runs_on].cancel()
+                        print(f"[DS] '{runs_on}' existing timer cancelled and restarted")
+
+                    timer = threading.Timer(5, lambda: self._check_and_trigger(runs_on))
+                    timer.start()
+                    self._ds_timers[runs_on] = timer
 
             else:
                 print(f"[DS] '{runs_on}' is CLOSED")
@@ -144,24 +184,84 @@ class SystemOrchestrator:
 
                 self._open_doors.discard(runs_on)
 
-                if not self._open_doors and self.state.alarm_active:
+                if not self._open_doors and self.state.alarm_active and not self.state.security_armed:
                     print(f"[DS] All doors closed and alarm was active - DEACTIVATING ALARM")
                     self.state.set_security(False)
                     self.state.set_alarm(False)
+                    self._publish_command("db", "off")
+                    if self.socketio:
+                        self.socketio.emit('state', self.state.get_all())
+
+    def _on_dms(self, client, userdata, msg):
+        """DMS listens for PIN code entries. If the correct PIN is entered while the alarm is active, it disarms the system."""
+
+        payload = json.loads(msg.payload.decode())
+        pin = payload.get("pin")
+        
+        if pin is None:
+            return
+        
+        with self._lock:
+            if self.state.check_pin(str(pin)):
+                if self.state.alarm_active or self.state.security_armed:
+                    # 4c - correct PIN while alarm is active or system is armed -> DISARM
+                    print("[DMS] Correct PIN -> DISARM")
+                    if self._grace_timer:
+                        self._grace_timer.cancel()
+                        self._grace_timer = None
+                    if self._arm_timer:
+                        self._arm_timer.cancel()
+                        self._arm_timer = None
+                    self.state.set_security(False)
+                    self.state.set_alarm(False)
+                    self._publish_command("db", "off")
+                    if self.socketio:
+                        self.socketio.emit('state', self.state.get_all())
+                else:
+                    # 4a - system is disarmed, correct PIN -> arm after 10s
+                    print("[DMS] Correct PIN -> arming in 10s")
+                    if self._arm_timer:
+                        self._arm_timer.cancel()
+                    self._arm_timer = threading.Timer(10, self._arm_system)
+                    self._arm_timer.daemon = True
+                    self._arm_timer.start()
+                    if self.socketio:
+                        self.socketio.emit('arming', {'countdown': 10})
+            else:
+                print("[DMS] Wrong PIN")
+
+    def _arm_system(self):
+        """Arms the system after 10s delay when correct PIN is entered while system is disarmed."""
+        with self._lock:
+            self._arm_timer = None
+            self.state.set_security(True)
+            self.state.set_alarm(False)
+            print("[ORCH] System ARMED")
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
 
     def _check_and_trigger(self, runs_on):
+        """Point 3 - door open for more than 5s triggers alarm"""
         with self._lock:
             if runs_on in self._open_doors:
-                print(f"[DS] WARNING - '{runs_on}' has been open for more than 5s - TRIGGERING ALARM")
+                print(f"[DS] '{runs_on}' open >5s - ALARM ON")
                 self._trigger_alarm()
-            else:
-                print(f"[DS] '{runs_on}' timer expired but door already closed - alarm not triggered")
+
+    def _grace_period_expired(self):
+        """4b - no PIN entered within 3s of door opening while armed -> trigger alarm"""
+        with self._lock:
+            self._grace_timer = None
+            print("[GRACE] Period expired - ALARM ON")
+            self._trigger_alarm()
 
     def _trigger_alarm(self):
         with self._lock:
             print(f"Alarm ON")
             self.state.set_security(True)
             self.state.set_alarm(True)
+            self._publish_command("db", "on")
+            if self.socketio:
+                self.socketio.emit('state', self.state.get_all())
 
     def _start_lcd_cycle(self):
         def lcd_cycle():
@@ -193,7 +293,7 @@ class SystemOrchestrator:
         
         self._publish_command("dl", "on")
         
-        timer = threading.Timer(duration, lambda: self._publish_command("dl", "off")) # turn off dl
+        timer = threading.Timer(duration, lambda: self._publish_command("dl", "off"))
         timer.daemon = True
         timer.start()
         
