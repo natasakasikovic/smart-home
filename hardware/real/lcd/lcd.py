@@ -19,6 +19,7 @@ class LCD(LCDInterface):
         super().__init__(config, stop_event, callback)
         self.i2c_address = int(config.get("i2c_address", "0x27"), 16)
         self.i2c_address_alt = int(config.get("i2c_address_alt", "0x3F"), 16)
+        self._lock = threading.Lock()
         
         try:
             self.mcp = PCF8574_GPIO(self.i2c_address)
@@ -39,15 +40,18 @@ class LCD(LCDInterface):
         self.log(f"Initializing REAL LCD ({self.columns}x{self.rows})")
 
 
-    def display_text(self, text: str, line: int = 0) -> None: # TODO: delete when you connect sensors if it's redundant
+    def display_text(self, text: str, line: int = 0) -> None:
         if line < 0 or line >= self.rows:
             if self.config.get("verbose", False): 
                 self.log(f"Invalid line number: {line}")
             return
         
-        self.set_cursor(0, line)
         display_text = text[:self.columns].ljust(self.columns)
-        self.lcd.message(display_text)        
+        
+        with self._lock: 
+            self.set_cursor(0, line)
+            self.lcd.message(display_text)
+        
         self.log(f"Displayed text on line {line}: {text}")
         
         if self.callback:
@@ -55,6 +59,23 @@ class LCD(LCDInterface):
                 "action": "display",
                 "line": line,
                 "text": text
+            }, self.config)
+
+
+    def display_both(self, line0: str, line1: str) -> None:
+        with self._lock:
+            self.set_cursor(0, 0)
+            self.lcd.message(line0[:self.columns].ljust(self.columns))
+            self.set_cursor(0, 1)
+            self.lcd.message(line1[:self.columns].ljust(self.columns))
+        
+        # self.log(f"Displayed both lines: '{line0}' / '{line1}'")
+        
+        if self.callback:
+            self.callback({
+                "action": "display_both",
+                "line0": line0,
+                "line1": line1
             }, self.config)
 
 

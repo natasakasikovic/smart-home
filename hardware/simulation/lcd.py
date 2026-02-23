@@ -13,6 +13,7 @@ class LCD(LCDInterface):
     def __init__(self, config, stop_event, callback):
         super().__init__(config, stop_event, callback)
         self.display_buffer = [" " * self.columns for _ in range(self.rows)]
+        self._lock = threading.Lock()
         self.log(f"Initializing simulated LCD ({self.columns}x{self.rows})")
 
     def display_text(self, text: str, line: int = 0) -> None:
@@ -21,9 +22,11 @@ class LCD(LCDInterface):
             return
         
         display_text = text[:self.columns].ljust(self.columns)
-        self.display_buffer[line] = display_text
         
-        self._print_display()
+        with self._lock: 
+            self.display_buffer[line] = display_text
+            self._print_display()
+        
         self.log(f"[SIMULATED] Displayed text on line {line}: {text}")
         
         if self.callback:
@@ -33,6 +36,19 @@ class LCD(LCDInterface):
                 "text": text
             }, self.config)
 
+    def display_both(self, line0: str, line1: str) -> None:
+        with self._lock:
+            self.display_buffer[0] = line0[:self.columns].ljust(self.columns)
+            self.display_buffer[1] = line1[:self.columns].ljust(self.columns)
+            self._print_display()
+        
+        
+        if self.callback:
+            self.callback({
+                "action": "display_both",
+                "line0": line0,
+                "line1": line1
+            }, self.config)
 
     def clear(self) -> None:
         self.display_buffer = [" " * self.columns for _ in range(self.rows)]

@@ -40,7 +40,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 - [x] If the number of people inside the building (as per point 2) is zero, trigger the ALARM when motion is detected by any of the RPIR1-3 sensors.
 - [x] If the GSG (attached to the Slava icon) detects significant movement, trigger the ALARM.
 ### Environmental Monitoring
-- [ ] Display the temperature and humidity from DHT1-3 on the LCD, cycling through the readings from each DHT sensor every few seconds.
+- [x] Display the temperature and humidity from DHT1-3 on the LCD, cycling through the readings from each DHT sensor every few seconds.
 ### Kitchen Timer
 - [ ] Enable kitchen timer settings.
 - [ ] Allow the timer duration to be set via the web application. Display the time on the 4-digit 7-segment (4SD) display.
@@ -50,7 +50,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 - [ ] Enable turning the BRGB light on/off and controlling its colors via the remote control and IR sensor, as well as through the web application.
 
 ### Camera
-- [ ] Display the webcam video on the web application.
+- [x] Display the webcam video on the web application.
 
 ## How to run?
 1. Clone the repository
