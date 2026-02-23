@@ -101,18 +101,7 @@ def arm_alarm():
     if not state.check_pin(pin):
         return jsonify({"error": "Wrong PIN"}), 401
     
-    def activate():
-        state.set_security(True)
-        state.set_alarm(True)
-        mqtt_listener.publish("commands/db", {
-            "action": "on"
-        })
-        socketio.emit('state', state.get_all())
-        print("[ALARM] System armed and alarm activated after 10 seconds")
-    
-    t = threading.Timer(10, activate)
-    t.daemon = True
-    t.start()
+    orchestrator.start_arming()
     
     return jsonify({"status": "arming", "delay": 10})
 
@@ -122,13 +111,7 @@ def disarm_alarm():
     pin = data.get('pin')
     
     if state.check_pin(pin):
-        state.set_security(False)
-        state.set_alarm(False)
-        print("[ALARM] System disarmed and alarm deactivated")
-        mqtt_listener.publish("commands/db", {
-            "action": "off"
-        })
-        socketio.emit('state', state.get_all())
+        orchestrator.disarm()
         return jsonify({"status": "ok"})
     else:
         return jsonify({"error": "Wrong PIN"}), 401

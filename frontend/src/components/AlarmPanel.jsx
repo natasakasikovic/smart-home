@@ -1,97 +1,135 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { armAlarm, disarmAlarm } from '../api';
 
-export default function AlarmPanel({ state }) {
+export default function AlarmPanel({ state, socket }) {
   const [pin, setPin] = useState('');
   const [armPin, setArmPin] = useState('');
   const [error, setError] = useState('');
-  const [arming, setArming] = useState(false); // countdown in progress
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('arming', ({ countdown: c }) => {
+      setCountdown(c);
+    });
+
+    return () => socket.off('arming');
+  }, [socket]);
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [countdown]);
+
+  const isArming = countdown > 0;
 
   const handleArm = async () => {
     if (armPin.length !== 4) {
-      setError('❌ PIN mora biti 4 cifre');
+      setError('❌ PIN has to be 4 digits');
       return;
     }
     try {
       await armAlarm(armPin);
       setArmPin('');
       setError('');
-      setArming(true);
-      setTimeout(() => setArming(false), 10000);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to arm');
+      setError(err.response?.data?.error || '❌ Failed to arm');
     }
   };
 
   const handleDisarm = async () => {
+    if (pin.length !== 4) {
+      setError('❌ PIN has to be 4 digits');
+      return;
+    }
     try {
       await disarmAlarm(pin);
       setPin('');
       setError('');
-      setArming(false);
+      setCountdown(0);
     } catch (err) {
-      setError('❌ WRONG PIN');
+      setError('❌ Wrong PIN');
     }
   };
 
+  const getStatusLabel = () => {
+    if (state.alarm_active) return { label: '🚨 ALARM ACTIVE', cls: 'text-red-500 animate-pulse' };
+    if (state.security_armed) return { label: '🔴 ARMED', cls: 'text-red-400 font-bold' };
+    if (isArming) return { label: `⏳ ARMING... ${countdown}s`, cls: 'text-yellow-400 animate-pulse' };
+    return { label: '🟢 DISARMED', cls: 'text-green-400 font-bold' };
+  };
+
+  const { label, cls } = getStatusLabel();
+
   return (
-    <div className="bg-gray-800 p-6 rounded-lg border-2 border-red-600 mb-8">
+    <div className={`bg-gray-800 p-6 rounded-lg border-2 mb-8 ${state.alarm_active ? 'border-red-500' : state.security_armed ? 'border-orange-500' : 'border-gray-600'}`}>
       <h2 className="text-2xl font-bold mb-4">🚨 Alarm System</h2>
 
-      {arming && (
-        <div className="mb-4 text-yellow-400 font-bold animate-pulse">
-          ⏳ System is arming in 10 seconds...
+      <div className={`mb-4 text-lg font-bold ${cls}`}>{label}</div>
+
+      {state.alarm_active && (
+        <div className="mb-4 p-3 bg-red-900 rounded text-red-200 text-sm">
+          Alarm is active! Enter PIN to disarm the system.
+        </div>
+      )}
+
+      {isArming && (
+        <div className="mb-4 p-3 bg-yellow-900 rounded text-yellow-200 text-sm">
+          System is arming in {countdown} seconds. Enter PIN to cancel.
         </div>
       )}
 
       <div className="flex gap-4 flex-wrap">
-        {/* ARM section */}
+        {/* ARM */}
         <div className="flex gap-2">
           <input
             type="password"
-            placeholder="Activation PIN"
+            placeholder="PIN (4 digits)"
             value={armPin}
-            onChange={(e) => setArmPin(e.target.value)}
-            className="bg-gray-700 px-4 py-3 rounded text-white w-40"
+            onChange={(e) => setArmPin(e.target.value.replace(/\D/, '').slice(0, 4))}
+            className="bg-gray-700 px-4 py-3 rounded text-white w-36"
             maxLength={4}
           />
           <button
             onClick={handleArm}
-            disabled={state.security_armed || arming}
-            className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 px-6 py-3 rounded font-bold"
+            disabled={state.security_armed || state.alarm_active || isArming}
+            className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-6 py-3 rounded font-bold"
           >
-            ARM SYSTEM
+            ARM
           </button>
         </div>
 
-        {/* DISARM section */}
+        {/* DISARM */}
         <div className="flex gap-2">
           <input
             type="password"
-            placeholder="Deactivation PIN"
+            placeholder="PIN (4 digits)"
             value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            className="bg-gray-700 px-4 py-3 rounded text-white w-40"
+            onChange={(e) => setPin(e.target.value.replace(/\D/, '').slice(0, 4))}
+            className="bg-gray-700 px-4 py-3 rounded text-white w-36"
             maxLength={4}
           />
           <button
             onClick={handleDisarm}
-            disabled={!state.security_armed && !arming}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-3 rounded font-bold"
+            disabled={!state.security_armed && !state.alarm_active && !isArming}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-6 py-3 rounded font-bold"
           >
             DISARM
           </button>
         </div>
       </div>
 
-      {error && <p className="text-red-500 mt-2 font-bold">{error}</p>}
-
-      <div className="mt-3 text-sm text-gray-400">
-        Status:{' '}
-        <span className={state.security_armed ? 'text-red-400 font-bold' : 'text-green-400 font-bold'}>
-          {state.security_armed ? 'ARMED' : arming ? 'ARMING...' : 'DISARMED'}
-        </span>
-      </div>
+      {error && <p className="text-red-400 mt-3 font-bold">{error}</p>}
     </div>
   );
 }
