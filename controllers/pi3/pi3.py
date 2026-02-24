@@ -79,7 +79,7 @@ def run():
     actuators = start_actuators(pi_config, stop_event, publisher)
     cmd_handler = CommandHandler(actuators, threads, stop_event)
 
-    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
+    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"], client_id="cmd-listener-pi3")
 
     print("[PI3] System ready.")
 
