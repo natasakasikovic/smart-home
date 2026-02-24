@@ -84,18 +84,30 @@ def on_message(client, userdata, msg):
 
 
 def on_connect(client, userdata, flags, rc):
-    print(f"[CMD] Connected on MQTT (rc={rc})")
-    client.subscribe("commands/#")
+    if rc == 0:
+        print(f"[CMD] Connected to MQTT broker (rc={rc})")
+        client.subscribe("commands/#")
+    else:
+        print(f"[CMD] Connection failed (rc={rc})")
 
 
-def start(actuators, broker="localhost", port=1883):
+def on_disconnect(client, userdata, rc):
+    if rc != 0:
+        print(f"[CMD] Unexpected disconnect (rc={rc}), will reconnect...")
+
+
+def start(actuators, broker="localhost", port=1883, client_id="cmd-listener-pi1"):
     global _actuators
     _actuators = actuators
     
-    client = mqtt.Client()
+    client = mqtt.Client(client_id=client_id, clean_session=True)
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect(broker, port, 60)
+    client.on_disconnect = on_disconnect
+
+    client.reconnect_delay_set(min_delay=1, max_delay=10)
+
+    client.connect(broker, port, keepalive=60)
     client.loop_start()
     
     return client

@@ -81,7 +81,7 @@ def run():
 
     threads = start_sensors(pi_config, stop_event, publisher)
     actuators = start_actuators(pi_config, stop_event, publisher)
-    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"])
+    cmd_client = command_listener.start(actuators, config["mqtt"]["hostname"], config["mqtt"]["port"], client_id="cmd-listener-pi2")
 
     cmd_handler = CommandHandler(actuators, threads, stop_event)
 
