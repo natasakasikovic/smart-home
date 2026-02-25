@@ -36,7 +36,6 @@ export default function KitchenTimer() {
 
   const handleConfigureButton = async () => {
     try {
-      // Konfiguriši koliko sekundi BTN dodaje
       await controlActuator('BTN', 'configure', { add_seconds: addSeconds });
       console.log(`✅ Button configured to add ${addSeconds}s`);
     } catch (error) {

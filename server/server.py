@@ -10,6 +10,7 @@ import json
 from server.state import state
 from server.mqtt_listener import MQTTListener
 from system_orchestrator import SystemOrchestrator
+from server.kitchen_timer import KitchenTimerService
 
 app = Flask(__name__)
 CORS(app)
@@ -47,6 +48,7 @@ def save_to_db(topic, data):
 
 mqtt_listener = MQTTListener(broker="127.0.0.1", port=1883, socketio=socketio) # TODO: extract to env
 mqtt_listener.start()
+kitchen_timer = KitchenTimerService(mqtt_publish_fn=mqtt_listener.publish)
 
 def influx_callback(client, userdata, msg):
     data = json.loads(msg.payload.decode('utf-8'))
@@ -63,7 +65,7 @@ def influx_callback(client, userdata, msg):
 mqtt_listener.client.message_callback_add("sensors/#", influx_callback)
 mqtt_listener.client.message_callback_add("actuators/#", influx_callback)
 
-orchestrator = SystemOrchestrator(mqtt_client=mqtt_listener.client, state=state, socketio=socketio)
+orchestrator = SystemOrchestrator(mqtt_client=mqtt_listener.client, state=state, socketio=socketio, kitchen_timer=kitchen_timer)
 orchestrator.register()
 
 
@@ -78,11 +80,23 @@ def control_actuator(code):
     Body example:
     - DB/DL: {"action": "on"} or {"action": "off"}
     - RGB: {"action": "set_color", "params": {"red": true, "green": false, "blue": true}}
-    - LCD: {"action": "display_text", "params": {"text": "Hello", "line": 0}}
     """
     data = request.json
     action = data.get('action')
     params = data.get('params', {})
+
+    if code == '4SD':
+        if action == 'set_timer':
+            kitchen_timer.set_timer(params.get('seconds', 0))
+        elif action == 'start':
+            kitchen_timer.start()
+        elif action == 'stop':
+            kitchen_timer.stop()
+        return jsonify({"status": "ok"})
+    
+    if code == 'BTN' and action == 'configure':
+        kitchen_timer.configure_btn(params.get('add_seconds', 10))
+        return jsonify({"status": "ok"})
     
     topic = f"commands/{code.lower()}"
     mqtt_listener.publish(topic, {

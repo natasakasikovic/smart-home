@@ -8,10 +8,11 @@ class SystemOrchestrator:
     and publishing commands to commands/* topics
     """
     
-    def __init__(self, mqtt_client, state, socketio=None):
+    def __init__(self, mqtt_client, state, socketio=None, kitchen_timer=None):
         self.mqtt_client = mqtt_client
         self.state = state
         self.socketio = socketio
+        self.kitchen_timer = kitchen_timer
         self._lock = threading.RLock()
         
         self._dl_timer = None
@@ -40,7 +41,8 @@ class SystemOrchestrator:
         self.mqtt_client.message_callback_add("sensors/dus", self._on_dus)
         self.mqtt_client.message_callback_add("sensors/dms", self._on_dms)
         self.mqtt_client.message_callback_add("sensors/dht", self._on_dht)
-        
+        self.mqtt_client.message_callback_add("actuators/btn", self._on_btn)
+
         self._start_lcd_cycle()
 
     def start_arming(self):
@@ -229,6 +231,13 @@ class SystemOrchestrator:
                         self.socketio.emit('arming', {'countdown': 10})
             else:
                 print("[DMS] Wrong PIN")
+
+    def _on_btn(self, client, userdata, msg):
+        payload = json.loads(msg.payload.decode())
+        turned_on = payload.get("turned_on")
+        
+        if turned_on and self.kitchen_timer:
+            self.kitchen_timer.on_btn_press()
 
     def _arm_system(self):
         """Arms the system after 10s delay when correct PIN is entered while system is disarmed."""
