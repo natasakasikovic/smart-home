@@ -11,8 +11,19 @@ class CommandHandler:
             'quit': self.cmd_exit,
             'status': self.cmd_status,
             'ssd': self.cmd_ssd,
+            'btn': self.cmd_btn,
             'help': self.cmd_help,
         }
+
+    def cmd_btn(self, args):
+        """Simulate kitchen button press"""
+        if "BTN" not in self.actuators:
+            print("[ERROR] BTN actuator not available")
+            return
+        btn = self.actuators["BTN"]
+        btn.on()
+        btn.off()
+        print("[CMD] Kitchen button pressed")
     
     def cmd_exit(self, args):
         print("[PI2] Shutting down...")
@@ -52,6 +63,7 @@ class CommandHandler:
         print("  status                 - Show system status")
         print("  ssd display <value>    - Display 4-digit value on SSD")
         print("  ssd clear              - Clear the SSD display")
+        print("  btn                    - Simulate kitchen button press")
         print("  help                   - Show this help message\n")
     
     def handle(self, command_line):
