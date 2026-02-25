@@ -54,7 +54,7 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ### Lighting Control
 
-- [ ] Enable turning the BRGB light on/off and controlling its colors via the remote control and IR sensor, as well as through the web application.
+- [x] Enable turning the BRGB light on/off and controlling its colors via the remote control and IR sensor, as well as through the web application.
 
 ### Camera
 
