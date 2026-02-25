@@ -47,10 +47,10 @@ Hardware: Raspberry Pi, GPIO sensors and actuators
 
 ### Kitchen Timer
 
-- [ ] Enable kitchen timer settings.
-- [ ] Allow the timer duration to be set via the web application. Display the time on the 4-digit 7-segment (4SD) display.
-- [ ] Allow pressing the button (BTN) to add N seconds to the timer. N is the number of seconds configured via the web application.
-- [ ] When the timer expires, the 4SD display should blink showing 00:00. Pressing the button (BTN) stops the blinking.
+- [x] Enable kitchen timer settings.
+- [x] Allow the timer duration to be set via the web application. Display the time on the 4-digit 7-segment (4SD) display.
+- [x] Allow pressing the button (BTN) to add N seconds to the timer. N is the number of seconds configured via the web application.
+- [x] When the timer expires, the 4SD display should blink showing 00:00. Pressing the button (BTN) stops the blinking.
 
 ### Lighting Control
 
