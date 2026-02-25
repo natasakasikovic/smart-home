@@ -98,7 +98,7 @@
             "poll_interval": 0.1,
             "runs_on": "PI2"
         },
-            "DHT3": {
+        "DHT3": {
             "name": "Kitchen DHT",
             "simulated": true,
             "code": "DHT3",
@@ -115,6 +115,14 @@
             "verbose": true,
             "digits": 4,
             "refresh_interval": 1.0,
+            "runs_on": "PI2"
+        },
+        "BTN": {
+            "name": "Kitchen Button",
+            "simulated": true,
+            "topic": "actuators/btn",
+            "pin": 17,
+            "verbose": true,
             "runs_on": "PI2"
         }
     },

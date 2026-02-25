@@ -3,6 +3,7 @@ import signal
 
 import command_listener
 
+from components.btn_manager import BTNManager
 from publisher import Publisher
 from utils.config_loader import load_config
 from components.gsg_manager import GSGManager
@@ -61,6 +62,12 @@ def start_actuators(config, stop_event, publisher):
         ssd_config["code"] = "4SD"
         ssd = SSDManager.start_ssd(ssd_config, stop_event, publisher)
         actuators["4SD"] = ssd
+
+    if "BTN" in config:
+        btn_config = config["BTN"]
+        btn_config["code"] = "BTN"
+        btn = BTNManager.start_btn(btn_config, stop_event, publisher)
+        actuators["BTN"] = btn
 
     return actuators
 
