@@ -51,21 +51,10 @@ def execute_action(actuator, code, action, params):
 
     # === 4SD (7-Segment Display Timer) ===
     elif code == "4SD":
-        if action == "set_timer":
-            total_seconds = params.get('seconds', 0)
-            minutes = total_seconds // 60
-            seconds = total_seconds % 60
-            actuator.set_time(minutes, seconds)
-        elif action == "start":
-            actuator.start_timer()
-        elif action == "stop":
-            actuator.stop_timer()
-
-    # === BTN (Kitchen Button) ===
-    elif code == "BTN":
-        if action == "configure":
-            add_seconds = params.get('add_seconds', 10)
-            actuator.configure_add_seconds(add_seconds)
+        if action == "display_time":
+            actuator.display_time(params.get('value', '0000'))
+        elif action == "clear":
+            actuator.clear()
 
 
 def on_message(client, userdata, msg):
