@@ -35,7 +35,7 @@ class BTNManager():
                 "runs_on": cfg.get("runs_on", "unknown")
             }
 
-            topic = cfg.get("topic", "actuators/btn")
+            topic = cfg.get("topic", "actuators/7segment/kitchen")
             publisher.add_measurement(topic, payload)
 
         btn = BTNManager.create_btn(config, stop_event, btn_callback)
