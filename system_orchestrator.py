@@ -42,6 +42,7 @@ class SystemOrchestrator:
         self.mqtt_client.message_callback_add("sensors/dms", self._on_dms)
         self.mqtt_client.message_callback_add("sensors/dht", self._on_dht)
         self.mqtt_client.message_callback_add("actuators/btn", self._on_btn)
+        self.mqtt_client.message_callback_add("sensors/ir", self.handle_ir)
 
         self._start_lcd_cycle()
 
@@ -238,6 +239,35 @@ class SystemOrchestrator:
         
         if turned_on and self.kitchen_timer:
             self.kitchen_timer.on_btn_press()
+
+    def handle_ir(self, client, userdata, msg):
+        import json
+        data = json.loads(msg.payload.decode('utf-8'))
+        key = data.get('key')
+        
+        IR_TO_RGB = {
+            "1": "red",
+            "2": "green",
+            "3": "blue",
+            "4": "yellow",
+            "5": "purple",
+            "6": "light_blue",
+            "7": "white",
+            "0": "off",
+            "OK": "white",
+            "*": "off",
+            "#": "off",
+        }
+        
+        action = IR_TO_RGB.get(key)
+        if action:
+            self.mqtt_client.publish("commands/rgb", json.dumps({
+                "action": action,
+                "params": {}
+            }))
+            print(f"[IR] Key '{key}' → RGB '{action}'")
+        else:
+            print(f"[IR] Unmapped key: '{key}'")
 
     def _arm_system(self):
         """Arms the system after 10s delay when correct PIN is entered while system is disarmed."""
