@@ -8,11 +8,12 @@ class SystemOrchestrator:
     and publishing commands to commands/* topics
     """
     
-    def __init__(self, mqtt_client, state, socketio=None, kitchen_timer=None):
+    def __init__(self, mqtt_client, state, socketio=None, kitchen_timer=None, alarm_event_callback=None):
         self.mqtt_client = mqtt_client
         self.state = state
         self.socketio = socketio
         self.kitchen_timer = kitchen_timer
+        self._alarm_event_callback = alarm_event_callback
         self._lock = threading.RLock()
         
         self._dl_timer = None
@@ -69,6 +70,8 @@ class SystemOrchestrator:
             self.state.set_security(False)
             self.state.set_alarm(False)
             self._publish_command("db", "off")
+            if self._alarm_event_callback:
+                self._alarm_event_callback("alarm_disarmed")
             if self.socketio:
                 self.socketio.emit('state', self.state.get_all())
 
@@ -218,6 +221,8 @@ class SystemOrchestrator:
                     self.state.set_security(False)
                     self.state.set_alarm(False)
                     self._publish_command("db", "off")
+                    if self._alarm_event_callback:
+                        self._alarm_event_callback("alarm_disarmed")
                     if self.socketio:
                         self.socketio.emit('state', self.state.get_all())
                 else:
@@ -276,6 +281,8 @@ class SystemOrchestrator:
             self.state.set_security(True)
             self.state.set_alarm(False)
             print("[ORCH] System ARMED")
+            if self._alarm_event_callback:
+                self._alarm_event_callback("system_armed")
             if self.socketio:
                 self.socketio.emit('state', self.state.get_all())
 
@@ -299,6 +306,8 @@ class SystemOrchestrator:
             self.state.set_security(True)
             self.state.set_alarm(True)
             self._publish_command("db", "on")
+            if self._alarm_event_callback:
+                self._alarm_event_callback("alarm_triggered")
             if self.socketio:
                 self.socketio.emit('state', self.state.get_all())
 

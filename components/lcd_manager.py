@@ -28,14 +28,23 @@ class LCDManager:
     ) -> threading.Thread:
 
         def lcd_callback(action_data, cfg):
+            action = action_data.get("action", "unknown")
+            
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "LCD",
-                "action": action_data.get("action", "unknown"),
+                "action": action,
                 "data": action_data,
                 "simulated": cfg.get("simulated", True),
                 "runs_on": cfg.get("runs_on", "unknown")
             }
+
+            if action == "display_both":
+                payload["line0"] = action_data.get("line0", "")
+                payload["line1"] = action_data.get("line1", "")
+            elif action == "display":
+                payload["line"] = str(action_data.get("line", 0))
+                payload["text"] = action_data.get("text", "")
 
             topic = cfg.get("topic", "actuators/lcd")
             publisher.add_measurement(topic, payload)
