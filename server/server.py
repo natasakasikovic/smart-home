@@ -62,12 +62,28 @@ def influx_callback(client, userdata, msg):
         code = parts[-1].upper()
         state.update_actuator(code, data.copy())
 
+def alarm_event_callback(event_type: str, details: dict = None):
+    """Save alarm state changes to InfluxDB"""
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    point = Point("alarm_events") \
+        .tag("event_type", event_type) \
+        .field("active", event_type in ["alarm_triggered", "system_armed"]) \
+        .field("details", str(details or {}))
+    try:
+        write_api.write(bucket=bucket, org=org, record=point)
+        print(f"[INFLUX] Alarm event saved: {event_type}")
+    except Exception as e:
+        print(f"[INFLUX_ERROR] Failed to save alarm event: {e}")
+
 mqtt_listener.client.message_callback_add("sensors/#", influx_callback)
 mqtt_listener.client.message_callback_add("actuators/#", influx_callback)
 
-orchestrator = SystemOrchestrator(mqtt_client=mqtt_listener.client, state=state, socketio=socketio, kitchen_timer=kitchen_timer)
+orchestrator = SystemOrchestrator(mqtt_client=mqtt_listener.client, 
+                                  state=state, 
+                                  socketio=socketio, 
+                                  kitchen_timer=kitchen_timer, 
+                                  alarm_event_callback=alarm_event_callback)
 orchestrator.register()
-
 
 @app.route('/api/state', methods=['GET'])
 def get_state():
