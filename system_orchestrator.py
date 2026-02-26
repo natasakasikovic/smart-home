@@ -20,6 +20,7 @@ class SystemOrchestrator:
 
         self._ds_timers = {}
         self._open_doors = set()
+        self._alarm_from_ds = False
 
         self._arm_timer = None
         self._grace_timer = None
@@ -67,6 +68,7 @@ class SystemOrchestrator:
             if self._arm_timer:
                 self._arm_timer.cancel()
                 self._arm_timer = None
+            self._alarm_from_ds = False
             self.state.set_security(False)
             self.state.set_alarm(False)
             self._publish_command("db", "off")
@@ -190,11 +192,18 @@ class SystemOrchestrator:
 
                 self._open_doors.discard(runs_on)
 
-                if not self._open_doors and self.state.alarm_active and not self.state.security_armed:
-                    print(f"[DS] All doors closed and alarm was active - DEACTIVATING ALARM")
+                # Point 3: if alarm was triggered because door was open >5s,
+                # deactivate alarm once all doors are closed again.
+                # We do NOT do this if the alarm was triggered by the armed security
+                # system (point 4) — that requires PIN entry to disarm.
+                if not self._open_doors and self.state.alarm_active and self._alarm_from_ds:
+                    print(f"[DS] All doors closed and alarm was triggered by DS open >5s - DEACTIVATING ALARM")
+                    self._alarm_from_ds = False
                     self.state.set_security(False)
                     self.state.set_alarm(False)
                     self._publish_command("db", "off")
+                    if self._alarm_event_callback:
+                        self._alarm_event_callback("alarm_disarmed")
                     if self.socketio:
                         self.socketio.emit('state', self.state.get_all())
 
@@ -218,6 +227,7 @@ class SystemOrchestrator:
                     if self._arm_timer:
                         self._arm_timer.cancel()
                         self._arm_timer = None
+                    self._alarm_from_ds = False
                     self.state.set_security(False)
                     self.state.set_alarm(False)
                     self._publish_command("db", "off")
@@ -291,6 +301,7 @@ class SystemOrchestrator:
         with self._lock:
             if runs_on in self._open_doors:
                 print(f"[DS] '{runs_on}' open >5s - ALARM ON")
+                self._alarm_from_ds = True  # mark that this alarm came from DS open >5s
                 self._trigger_alarm()
 
     def _grace_period_expired(self):
