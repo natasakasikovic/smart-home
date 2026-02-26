@@ -51,6 +51,7 @@ class DB(DBInterface):
                 self._buzz_thread.join(timeout=1.0)
                 self._buzz_thread = None
 
+            GPIO.output(self.pin, GPIO.LOW)
             self.callback(self.config, self.is_on)
             self.log("BUZZER OFF 🔇 (real)")
         else:
