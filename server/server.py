@@ -22,7 +22,7 @@ url = "http://localhost:8086"
 bucket = "example_db"
 influxdb_client = InfluxDBClient(url=url, token=token, org=org)
 
-tags = ["simulated", "runs_on", "name", "verbose", "pin", "code"]
+tags = ["simulated", "runs_on", "name", "verbose", "code"]
 
 def save_to_db(topic, data):
     """Save sensor/actuator data to InfluxDB"""

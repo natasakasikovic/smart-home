@@ -37,7 +37,7 @@ class DMSManager:
                 "runs_on": cfg.get("runs_on", "unknown")
             }
 
-            topic = cfg.get("topic", "actuators/dms")
+            topic = cfg.get("topic", "sensors/dms")
             publisher.add_measurement(topic, payload)
 
         dms = DMSManager.create_dms(config, stop_event, dms_callback)
