@@ -8,5 +8,5 @@ class DSInterface(SensorInterface):
         self.is_open = False
 
     @abstractmethod
-    def detect_state_change(self) -> bool:
+    def detect_state_change(self):
         pass

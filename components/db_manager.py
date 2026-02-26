@@ -27,11 +27,11 @@ class DBManager:
         stop_event: threading.Event,
         publisher=None
     ):
-        def db_callback(cfg):
+        def db_callback(cfg, is_on):
             payload = {
                 "name": cfg.get("name", "unknown"),
                 "type": "db",
-                "buzzing": True,
+                "buzzing": is_on,
                 "simulated": cfg.get("simulated", True),
                 "runs_on": cfg.get("runs_on", "unknown")
             }

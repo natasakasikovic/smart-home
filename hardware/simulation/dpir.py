@@ -6,7 +6,7 @@ def loop(dpir):
     while not dpir.should_stop():
         state_change = dpir.detect_motion()
     
-        if state_change is not None:
+        if state_change:
             dpir.callback(dpir.config)
         
         time.sleep(dpir.config.get('poll_interval', 0.5))

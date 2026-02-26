@@ -8,7 +8,7 @@
         "DPIR1": {
             "name": "Door PIR motion sensor",
             "simulated": true,
-            "topic": "sensors/dpir1",
+            "topic": "sensors/dpir",
             "pin": 16,
             "verbose": true,
             "runs_on": "PI1"
@@ -32,12 +32,13 @@
             "poll_interval": 0.5,
             "rows": [25, 8, 7, 1],
             "cols": [12, 16, 20, 21],
+            "pin_length": 4,
             "runs_on": "PI1"
         },
         "DB": {
             "name": "Door Buzzer",
             "simulated": true,
-            "topic": "sensors/db",
+            "topic": "actuators/db",
             "pin": 18,
             "verbose": true,
             "runs_on": "PI1"
@@ -45,7 +46,7 @@
         "DL": {
             "name": "Door Light",
             "simulated": true,
-            "topic": "sensors/dl",
+            "topic": "actuators/dl",
             "pin": 16,
             "verbose": true,
             "runs_on": "PI1"
@@ -53,10 +54,136 @@
         "DUS1": {
             "name": "Door ultrasonic sensor",
             "simulated": true,
-            "topic": "sensors/dus1",
+            "trig_pin": 4,
+            "echo_pin":  17,
+            "verbose": true,
+            "topic": "sensors/dus",
+            "runs_on": "PI1"
+        }
+    },
+
+    "PI2": {
+        "DS2": {
+            "name": "Door sensor",
+            "simulated": true,
+            "topic": "sensors/ds2",
+            "pin": 26,
+            "debounce_ms": 50,
+            "verbose": true,
+            "poll_interval": 0.5,
+            "runs_on": "PI2"
+        },
+        "DUS2": {
+            "name": "Door ultrasonic sensor",
+            "simulated": true,
+            "trig_pin": 4,
+            "echo_pin":  17,
+            "verbose": true,
+            "topic": "sensors/dus",
+            "runs_on": "PI2"
+        },
+        "DPIR2": {
+            "name": "Door PIR motion sensor",
+            "simulated": true,
+            "topic": "sensors/dpir",
+            "pin": 16,
+            "verbose": true,
+            "runs_on": "PI2"
+        },
+        "GSG": {
+            "name": "Gyroscope",
+            "simulated": true,
+            "topic": "sensors/gsg",
+            "verbose": true,
+            "poll_interval": 0.1,
+            "runs_on": "PI2"
+        },
+        "DHT3": {
+            "name": "Kitchen DHT",
+            "simulated": true,
+            "code": "DHT3",
+            "topic": "sensors/dht",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI2"
+        },
+        "4SD": {
+            "name": "Kitchen 4 Digit Display",
+            "simulated": true,
+            "topic": "actuators/7segment/kitchen",
+            "verbose": true,
+            "digits": 4,
+            "refresh_interval": 1.0,
+            "runs_on": "PI2"
+        },
+        "BTN": {
+            "name": "Kitchen Button",
+            "simulated": true,
+            "topic": "actuators/btn",
             "pin": 17,
             "verbose": true,
-            "runs_on": "PI1"
+            "runs_on": "PI2"
+        }
+    },
+    
+    "PI3": {
+        "DPIR3": {
+            "name": "Living Room Motion Sensor",
+            "simulated": true,
+            "topic": "sensors/dpir3",
+            "pin": 16,
+            "verbose": true,
+            "runs_on": "PI3"
+        },
+        "RGB": {
+            "name": "Bedroom RGB",
+            "simulated": true,
+            "red_pin": 12,
+            "green_pin": 13,
+            "blue_pin": 19,
+            "runs_on": "PI3",
+            "verbose": true,
+            "topic": "actuators/rgb"
+        },
+        "LCD": {
+            "name": "Living room display",
+            "simulated": true,
+            "topic": "actuators/lcd",
+            "verbose": true,
+            "i2c_address": "0x27",
+            "i2c_address_alt": "0x3F",
+            "columns": 16,
+            "rows": 2,
+            "runs_on": "PI3"
+        },
+        "DHT1": {
+            "name": "Bedroom DHT",
+            "simulated": true,
+            "code": "DHT1",
+            "topic": "sensors/dht",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI3"
+        },
+        "DHT2": {
+            "name": "Master Bedroom DHT",
+            "simulated": true,
+            "code": "DHT2",
+            "topic": "sensors/dht",
+            "verbose": true,
+            "pin": 4,
+            "poll_interval": 2.0,
+            "runs_on": "PI3"
+        },
+        "IR": {
+            "name": "Bedroom Infrared",
+            "simulated": true,
+            "topic": "sensors/ir",
+            "pin": 17,
+            "verbose": true,
+            "runs_on": "PI3"
         }
     }
   }
